@@ -13,10 +13,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className="h-full">
-      <body className="h-full flex flex-col">
-        {children}
-        <BottomNav />
+    <html lang="ko">
+      <body>
+        <div id="mobile-frame">
+          {children}
+          <BottomNav />
+        </div>
       </body>
     </html>
   );

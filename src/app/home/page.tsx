@@ -17,18 +17,19 @@ export default function HomePage() {
           priority
         />
         <Link
-          href='/diet/my'
+          href='/diet/start'
           className='flex items-center justify-center w-full max-w-sm h-14 rounded-xl font-semibold text-base transition-opacity hover:opacity-85 active:opacity-70'
           style={{ backgroundColor: '#2C1A0E', color: '#F4E6C6' }}
         >
           내 다이어트 시작하기
         </Link>
-        <button
+        <Link
+          href='/diet/join'
           className='flex items-center justify-center w-full max-w-sm h-14 rounded-xl font-semibold text-base transition-opacity hover:opacity-85 active:opacity-70'
           style={{ backgroundColor: '#C47B3A', color: '#FAFAF7' }}
         >
           남의 다이어트 참여하기
-        </button>
+        </Link>
       </div>
 
     </main>
