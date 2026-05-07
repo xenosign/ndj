@@ -18,9 +18,19 @@ export default function LogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      className='px-6 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors'
+      className='flex items-center justify-center gap-3 w-full max-w-sm h-14 rounded-xl font-semibold text-base transition-opacity hover:opacity-90 active:opacity-80'
+      style={{ backgroundColor: '#FEE500', color: '#191919' }}
     >
-      로그아웃
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.7 1.6 5.1 4 6.6l-.9 3.4c-.1.3.3.6.5.4l4-2.6c.4.1.9.1 1.4.1 5.523 0 10-3.477 10-7.8S17.523 3 12 3z" />
+      </svg>
+      카카오 로그아웃
     </button>
   );
 }
