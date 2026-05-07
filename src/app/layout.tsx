@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import BottomNav from "@/components/layout/BottomNav";
 
 export const metadata: Metadata = {
   title: "NDJ App",
@@ -13,7 +14,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className="h-full">
-      <body className="h-full flex flex-col">{children}</body>
+      <body className="h-full flex flex-col">
+        {children}
+        <BottomNav />
+      </body>
     </html>
   );
 }

@@ -4,13 +4,17 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const NAV_ITEMS = [
-  { href: '/home', label: '홈', icon: '🏠' },
+  { href: '/home', label: '적들의 다이어트', icon: '⚔️' },
   { href: '/diet/my', label: '내 다이어트', icon: '💪' },
   { href: '/settings', label: '환경설정', icon: '⚙️' },
 ];
 
+const HIDDEN_PATHS = ['/', '/login'];
+
 export default function BottomNav() {
   const pathname = usePathname();
+
+  if (HIDDEN_PATHS.includes(pathname)) return null;
 
   return (
     <nav
@@ -24,7 +28,7 @@ export default function BottomNav() {
             key={href}
             href={href}
             className="flex flex-1 flex-col items-center justify-center gap-1 py-3 transition-opacity active:opacity-60"
-            style={{ color: isActive ? '#F2C14E' : '#7B4A2D' }}
+            style={{ color: isActive ? '#F2C14E' : '#E8D5B0' }}
           >
             <span className="text-xl">{icon}</span>
             <span className="text-xs font-medium">{label}</span>
