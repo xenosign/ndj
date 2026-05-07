@@ -16,7 +16,7 @@ export default function HomePage() {
         priority
       />
       <Link
-        href="/diet/start"
+        href="/diet/my"
         className="flex items-center justify-center w-full max-w-sm h-14 rounded-xl font-semibold text-base transition-opacity hover:opacity-85 active:opacity-70"
         style={{ backgroundColor: '#2C1A0E', color: '#F4E6C6' }}
       >
