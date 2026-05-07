@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function HomePage() {
   return (
@@ -14,12 +15,13 @@ export default function HomePage() {
         className="mb-4 rounded-3xl"
         priority
       />
-      <button
+      <Link
+        href="/diet/start"
         className="flex items-center justify-center w-full max-w-sm h-14 rounded-xl font-semibold text-base transition-opacity hover:opacity-85 active:opacity-70"
         style={{ backgroundColor: '#2C1A0E', color: '#F4E6C6' }}
       >
         내 다이어트 시작하기
-      </button>
+      </Link>
       <button
         className="flex items-center justify-center w-full max-w-sm h-14 rounded-xl font-semibold text-base transition-opacity hover:opacity-85 active:opacity-70"
         style={{ backgroundColor: '#C47B3A', color: '#FAFAF7' }}
