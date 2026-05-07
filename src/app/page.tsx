@@ -22,14 +22,13 @@ export default function SplashPage() {
   }, [router]);
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center bg-white">
+    <main className="relative flex-1 w-full">
       <Image
         src="/ndj.webp"
         alt="NDJ"
-        width={200}
-        height={200}
+        fill
         priority
-        className="animate-pulse"
+        className="object-cover md:object-contain"
       />
     </main>
   );
