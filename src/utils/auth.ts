@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/client";
-import type { Provider } from "@supabase/supabase-js";
+import { createClient } from '@/lib/supabase/client';
+import type { Provider } from '@supabase/supabase-js';
 
 export async function signInWithOAuth(provider: Provider) {
   const supabase = createClient();
