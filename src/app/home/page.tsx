@@ -9,8 +9,8 @@ export default function HomePage() {
       <Image
         src="/icons/ndj-logo-512.png"
         alt="NDJ 로고"
-        width={156}
-        height={156}
+        width={234}
+        height={234}
         className="mb-4 rounded-3xl"
         priority
       />
