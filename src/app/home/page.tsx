@@ -9,7 +9,7 @@ export default function HomePage() {
     >
       <div className='flex flex-1 flex-col items-center justify-center gap-4 p-8'>
         <Image
-          src='/icons/ndj-logo-512.png'
+          src='/ndj-logo-512.png'
           alt='NDJ 로고'
           width={234}
           height={234}
