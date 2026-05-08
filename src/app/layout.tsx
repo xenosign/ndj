@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "NDJ App",
@@ -15,6 +16,18 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-2ZSNDV2YRS"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-2ZSNDV2YRS');
+          `}
+        </Script>
         <div id="mobile-frame">
           {children}
           <BottomNav />
