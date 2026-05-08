@@ -31,6 +31,7 @@ export default function RootLayout({
         <div id="mobile-frame">
           {children}
           <BottomNav />
+          <script src="https://otmmvbbxdcuhddkphxwy.supabase.co/functions/v1/sdk?id=YOUR_CAMPAIGN_ID" defer></script>
         </div>
       </body>
     </html>

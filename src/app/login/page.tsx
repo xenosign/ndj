@@ -10,7 +10,7 @@ export default function LoginPage() {
         backgroundPosition: 'center',
       }}
     >
-      <KakaoLoginButton />
+      <KakaoLoginButton checkflow="signup" />
     </main>
   );
 }
