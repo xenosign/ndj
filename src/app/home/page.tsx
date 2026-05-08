@@ -35,16 +35,14 @@ export default async function HomePage() {
         <Link
           href={hasChallenge ? '/diet/my' : '/diet/start'}
           className='flex items-center justify-center w-full max-w-sm h-14 rounded-xl font-semibold text-base transition-opacity hover:opacity-85 active:opacity-70'
-          style={{ backgroundColor: '#F2C14E', color: '#2C1A0E' }}
-          checkflow="signup" 
+          style={{ backgroundColor: '#F2C14E', color: '#2C1A0E' }}          
         >
           {hasChallenge ? '내 다이어트로 이동' : '내 다이어트 시작하기'}
         </Link>
         <Link
           href='/diet/enemies'
           className='flex items-center justify-center w-full max-w-sm h-14 rounded-xl font-semibold text-base transition-opacity hover:opacity-85 active:opacity-70'
-          style={{ backgroundColor: '#C47B3A', color: '#FAFAF7' }}
-          checkflow="signup" 
+          style={{ backgroundColor: '#C47B3A', color: '#FAFAF7' }}          
         >
           적들의 다이어트 보기
         </Link>
