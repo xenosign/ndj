@@ -46,15 +46,6 @@ export default function InviteModal({ inviteCode }: { inviteCode: string }) {
               ⚔️ 적들 초대하기
             </h2>
 
-            {/* QR 코드 */}
-            <div className="bg-white p-4 rounded-2xl">
-              {joinUrl ? (
-                <QRCode value={joinUrl} size={180} />
-              ) : (
-                <div className="w-[180px] h-[180px]" />
-              )}
-            </div>
-
             {/* 시크릿 코드 */}
             <div className="w-full flex flex-col items-center gap-3">
               <p className="text-xs font-medium" style={{ color: '#E8D5B0' }}>

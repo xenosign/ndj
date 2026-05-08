@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(ls -la \"C:\\\\git\\\\ndj\\\\\" 2>/dev/null)",
+      "Bash(sed -i 's|<div className=\"flex-1 overflow-y-auto px-5 py-6 flex flex-col gap-5\">|<div className=\"flex-1 overflow-y-auto\">\\\\n      <div className=\"px-5 py-6 flex flex-col gap-5\">|g' /c/git/ndj/src/app/diet/edit/page.tsx)",
+      "Bash(sed -i 's|<div className=\"flex-1 overflow-y-auto px-5 py-6 flex flex-col gap-5\">|<div className=\"flex-1 overflow-y-auto\">\\\\n      <div className=\"px-5 py-6 flex flex-col gap-5\">|g' /c/git/ndj/src/app/diet/start/page.tsx)",
+      "Bash(sed -i 's|<div className=\"flex-1 overflow-y-auto px-5 py-6 flex flex-col gap-6\">|<div className=\"flex-1 overflow-y-auto\">\\\\n      <div className=\"px-5 py-6 flex flex-col gap-6\">|g' /c/git/ndj/src/app/settings/page.tsx)",
+      "Bash(dir \"C:\\\\git\\\\ndj\\\\src\\\\components\\\\settings\")"
+    ]
+  }
+}

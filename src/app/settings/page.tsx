@@ -1,15 +1,23 @@
+import ScrollableArea from '@/components/layout/ScrollableArea';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import TopHeader from '@/components/layout/TopHeader';
 import LogoutButton from '@/components/auth/LogoutButton';
 import DietDeleteButton from '@/components/settings/DietDeleteButton';
+import NicknameEditor from '@/components/settings/NicknameEditor';
 
 export default async function SettingsPage() {
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('nickname')
+    .eq('id', user.id)
+    .single();
 
   const { data: challenge } = await supabase
     .from('diet_challenges')
@@ -23,7 +31,14 @@ export default async function SettingsPage() {
     <main className="flex flex-1 flex-col" style={{ backgroundColor: '#2C1A0E' }}>
       <TopHeader title="환경설정" showBack={false} />
 
-      <div className="flex-1 overflow-y-auto px-5 py-6 flex flex-col gap-6">
+      <ScrollableArea>
+      <div className="px-5 py-6 flex flex-col gap-6">
+
+        {/* 닉네임 */}
+        <NicknameEditor initialNickname={profile?.nickname as string | null ?? null} />
+
+        {/* 구분선 */}
+        <div style={{ height: 1, backgroundColor: '#3D2510' }} />
 
         {/* 내 다이어트 관리 */}
         <section className="flex flex-col gap-3">
@@ -90,6 +105,7 @@ export default async function SettingsPage() {
         </section>
 
       </div>
+      </ScrollableArea>
     </main>
   );
 }

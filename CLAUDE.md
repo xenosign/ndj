@@ -5,6 +5,7 @@
 - Do NOT create git commits automatically
 - Do NOT create git worktrees
 - Do NOT run any git commands without explicit approval
+- Do NOT use any worktree, do everything in main branch
 
 ## Using these colors
 

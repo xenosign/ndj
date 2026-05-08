@@ -1,5 +1,7 @@
 'use client';
 
+import ScrollableArea from '@/components/layout/ScrollableArea';
+
 import { use, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -127,7 +129,8 @@ export default function DietEditPage() {
         </h1>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-5 py-6 flex flex-col gap-5">
+      <ScrollableArea>
+      <div className="px-5 py-6 flex flex-col gap-5">
 
         <Field label="다이어트 이름">
           <input
@@ -230,6 +233,7 @@ export default function DietEditPage() {
           {submitting ? '저장 중...' : '수정 완료'}
         </button>
       </div>
+      </ScrollableArea>
     </main>
   );
 }

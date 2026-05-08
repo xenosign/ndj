@@ -25,7 +25,7 @@ export default function JoinButton({ challengeId }: { challengeId: string }) {
       setLoading(false);
       return;
     }
-    router.push('/home');
+    router.push('/diet/enemies');
   }
 
   return (

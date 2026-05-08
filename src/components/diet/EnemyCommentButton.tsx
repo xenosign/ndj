@@ -1,0 +1,99 @@
+'use client';
+
+import { useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+
+export default function EnemyCommentButton({ challengeId }: { challengeId: string }) {
+  const [open, setOpen] = useState(false);
+  const [content, setContent] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
+
+  async function handleSubmit() {
+    if (!content.trim()) { setError('댓글을 입력해주세요.'); return; }
+    setSubmitting(true);
+    setError(null);
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSubmitting(false); return; }
+
+    const { error: insertErr } = await supabase.from('diet_comments').insert({
+      challenge_id: challengeId,
+      user_id: user.id,
+      content: content.trim(),
+    });
+
+    if (insertErr) {
+      setError('댓글 등록 중 오류가 발생했습니다.');
+      setSubmitting(false);
+      return;
+    }
+
+    setDone(true);
+    setContent('');
+    setTimeout(() => { setOpen(false); setDone(false); }, 1000);
+    setSubmitting(false);
+  }
+
+  return (
+    <>
+      <button
+        onClick={() => { setContent(''); setError(null); setDone(false); setOpen(true); }}
+        className="w-full rounded-2xl font-semibold text-sm py-4 transition-opacity hover:opacity-85 active:opacity-70"
+        style={{ backgroundColor: '#F5A58A', color: '#2C1A0E' }}
+      >
+        🔥 적에게 댓글 달기
+      </button>
+
+      {open && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className="w-full max-w-[430px] rounded-t-3xl px-6 pt-5 pb-10 flex flex-col gap-5"
+            style={{ backgroundColor: '#3D2510' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="w-10 h-1 rounded-full mx-auto" style={{ backgroundColor: '#7B4A2D' }} />
+
+            <h2 className="text-base font-bold" style={{ color: '#F2C14E' }}>
+              적에게 댓글 달기
+            </h2>
+
+            {done ? (
+              <p className="text-center text-base font-semibold" style={{ color: '#F2C14E' }}>
+                🔥 댓글이 등록되었습니다!
+              </p>
+            ) : (
+              <>
+                <textarea
+                  rows={4}
+                  placeholder="적에게 한마디..."
+                  value={content}
+                  onChange={e => setContent(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none"
+                  style={{ backgroundColor: '#2C1A0E', color: '#FAFAF7' }}
+                  autoFocus
+                />
+                {error && (
+                  <p className="text-xs font-medium" style={{ color: '#F5A58A' }}>{error}</p>
+                )}
+                <button
+                  onClick={handleSubmit}
+                  disabled={submitting}
+                  className="w-full h-13 rounded-xl font-bold text-sm transition-opacity hover:opacity-85 active:opacity-70 disabled:opacity-50"
+                  style={{ backgroundColor: '#F2C14E', color: '#2C1A0E' }}
+                >
+                  {submitting ? '등록 중...' : '댓글 등록'}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
