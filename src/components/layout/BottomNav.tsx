@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const NAV_ITEMS = [
-  { href: '/home', label: '적들의 다이어트', icon: '⚔️' },
+  { href: '/home', label: 'Home', icon: '🏠' },
+  { href: '/diet/join', label: '적들의 다이어트', icon: '⚔️' },
   { href: '/diet/my', label: '내 다이어트', icon: '💪' },
-  { href: '/settings', label: '환경설정', icon: '⚙️' },
+  { href: '/settings', label: '설정', icon: '⚙️' },
 ];
 
 const HIDDEN_PATHS = ['/', '/login'];
@@ -22,7 +23,7 @@ export default function BottomNav() {
       style={{ backgroundColor: '#2C1A0E', borderColor: '#3D2510' }}
     >
       {NAV_ITEMS.map(({ href, label, icon }) => {
-        const isActive = pathname === href || pathname.startsWith(href === '/home' ? '/home' : href);
+        const isActive = pathname === href || (href !== '/home' && pathname.startsWith(href));
         return (
           <Link
             key={href}
