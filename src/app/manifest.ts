@@ -2,9 +2,9 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'NDJ App',
+    name: '네 다이어트를 적에게 알려라!',
     short_name: 'NDJ',
-    description: 'NDJ Progressive Web Application',
+    description: '여러분의 다이어트를 주변인과 공유하여 다이어트를 성공!!',
     start_url: '/',
     display: 'standalone',
     orientation: 'portrait',
