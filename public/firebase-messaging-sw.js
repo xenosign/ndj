@@ -35,6 +35,11 @@ messaging.onBackgroundMessage((payload) => {
   });
 });
 
+// PWA 설치 요건: fetch 이벤트 핸들러 필수
+self.addEventListener("fetch", (event) => {
+  event.respondWith(fetch(event.request));
+});
+
 // 알림 클릭 처리
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
