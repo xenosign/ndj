@@ -17,7 +17,6 @@ export default async function EnemyDietDetailPage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  // 챌린지 정보
   const { data: challenge } = await supabase
     .from('diet_challenges')
     .select('id, title, start_weight, target_weight, target_date, deposit, user_id')
@@ -26,7 +25,6 @@ export default async function EnemyDietDetailPage({
 
   if (!challenge) redirect('/diet/enemies');
 
-  // 내가 참여자인지 확인
   const { data: participant } = await supabase
     .from('diet_participants')
     .select('id')
@@ -36,9 +34,15 @@ export default async function EnemyDietDetailPage({
 
   if (!participant) redirect('/diet/enemies');
 
+  // 적 닉네임
+  const { data: ownerProfile } = await supabase
+    .from('profiles')
+    .select('nickname')
+    .eq('id', challenge.user_id)
+    .single();
+
   const today = new Date().toISOString().split('T')[0];
 
-  // 최근 일일 기록에서 현재 체중 + 오늘 사진 조회
   const { data: latestLog } = await supabase
     .from('diet_daily_logs')
     .select('weight, logged_date, photo_url')
@@ -51,7 +55,6 @@ export default async function EnemyDietDetailPage({
   const todayPhotoPath: string | null =
     latestLog?.logged_date === today ? (latestLog.photo_url as string | null) : null;
 
-  // 사진 signed URL 서버에서 생성
   let todayPhotoSignedUrl: string | null = null;
   if (todayPhotoPath) {
     const { data: signedData } = await supabase.storage
@@ -60,7 +63,6 @@ export default async function EnemyDietDetailPage({
     todayPhotoSignedUrl = signedData?.signedUrl ?? null;
   }
 
-  // 붐업 / 붐다운 집계
   const { data: booms } = await supabase
     .from('diet_booms')
     .select('is_boom_up')
@@ -69,7 +71,6 @@ export default async function EnemyDietDetailPage({
   const boomUp = booms?.filter(b => b.is_boom_up).length ?? 0;
   const boomDown = booms?.filter(b => !b.is_boom_up).length ?? 0;
 
-  // 내 투표 (날짜 무관, 최근 것)
   const { data: myVoteRow } = await supabase
     .from('diet_booms')
     .select('is_boom_up')
@@ -79,99 +80,112 @@ export default async function EnemyDietDetailPage({
     .limit(1)
     .single();
 
-  const myVote: boolean | null =
-    myVoteRow ? (myVoteRow.is_boom_up as boolean) : null;
+  const myVote: boolean | null = myVoteRow ? (myVoteRow.is_boom_up as boolean) : null;
 
   const daysLeft = Math.ceil(
     (new Date(challenge.target_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
   );
-  const diff = +(challenge.target_weight - currentWeight).toFixed(1);
-  const LABEL_COLOR = '#E8D5B0';
+
+  const startWeight = challenge.start_weight as number;
+  const targetWeight = challenge.target_weight as number;
+  const diff = +(targetWeight - currentWeight).toFixed(1);
+  const totalChange = startWeight - targetWeight;
+  const currentChange = startWeight - currentWeight;
+  const progress = totalChange > 0
+    ? Math.min(100, Math.max(0, Math.round((currentChange / totalChange) * 100)))
+    : 0;
 
   return (
-    <main className="flex flex-1 flex-col" style={{ backgroundColor: '#2C1A0E' }}>
-      <TopHeader title="적의 다이어트" backHref="/diet/enemies" />
+    <main className="flex flex-1 flex-col" style={{ backgroundColor: '#F7F7FC' }}>
+      <TopHeader title={ownerProfile?.nickname ?? '적의 다이어트'} backHref="/diet/enemies" />
 
       <ScrollableArea>
-      <div className="px-6 py-6 flex flex-col gap-6">
+        <div className="px-4 py-5 flex flex-col gap-4 pb-8">
 
-        {/* 예치금(좌) + D-X일(우) */}
-        <div className="flex items-center justify-between">
-          <span
-            className="text-sm font-semibold px-3 py-1 rounded-full"
-            style={{ backgroundColor: '#3D2510', color: '#E8D5B0' }}
+          {/* 챌린지 타이틀 카드 */}
+          <div
+            className="rounded-2xl px-5 py-4 flex flex-col gap-3"
+            style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 12px rgba(123,110,246,0.08)' }}
           >
-            💰 {(challenge.deposit as number).toLocaleString()}원
-          </span>
-          <span
-            className="text-sm font-semibold px-3 py-1 rounded-full"
-            style={{ backgroundColor: '#7B4A2D', color: '#F2C14E' }}
-          >
-            D - {daysLeft}일
-          </span>
-        </div>
+            <p className="text-base font-bold" style={{ color: '#1A1A2E' }}>{challenge.title as string}</p>
+            <div className="flex items-center gap-2">
+              <span
+                className="text-xs font-semibold px-3 py-1 rounded-full"
+                style={{ backgroundColor: '#EDEAFF', color: '#7B6EF6' }}
+              >
+                D-{daysLeft}일
+              </span>
+              <span
+                className="text-xs font-semibold px-3 py-1 rounded-full"
+                style={{ backgroundColor: '#F5F5FA', color: '#9898A6' }}
+              >
+                💰 {(challenge.deposit as number).toLocaleString()}원
+              </span>
+            </div>
+          </div>
 
-        {/* 다이어트 제목 */}
-        <h2 className="text-base font-bold text-center" style={{ color: '#F2C14E' }}>
-          {challenge.title}
-        </h2>
-
-        {/* 목표까지 남은 체중 + 체중 사진 버튼 */}
-        <div className="flex flex-col items-center gap-2 py-6">
-          <p className="text-sm font-medium" style={{ color: LABEL_COLOR }}>
-            목표 체중까지
-          </p>
-          <p
-            className="font-extrabold leading-none"
-            style={{ color: '#F2C14E', fontSize: '72px' }}
+          {/* 체중 현황 카드 */}
+          <div
+            className="rounded-2xl px-5 py-5 flex flex-col gap-4"
+            style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 12px rgba(123,110,246,0.08)' }}
           >
-            {diff > 0 ? `+${diff}` : diff}kg
-          </p>
-          <div className="mt-4">
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="text-xs font-medium mb-1" style={{ color: '#9898A6' }}>현재 체중</p>
+                <p className="font-extrabold leading-none" style={{ color: '#1A1A2E', fontSize: '48px' }}>
+                  {currentWeight}
+                  <span className="text-lg font-semibold ml-1" style={{ color: '#9898A6' }}>kg</span>
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-medium mb-1" style={{ color: '#9898A6' }}>목표까지</p>
+                <p className="text-2xl font-bold" style={{ color: diff <= 0 ? '#4CAF50' : '#7B6EF6' }}>
+                  {diff > 0 ? `${diff}kg` : `${Math.abs(diff)}kg ✓`}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between mb-1.5">
+                <span className="text-xs" style={{ color: '#9898A6' }}>시작 {startWeight}kg</span>
+                <span className="text-xs font-semibold" style={{ color: '#7B6EF6' }}>{progress}%</span>
+                <span className="text-xs" style={{ color: '#9898A6' }}>목표 {targetWeight}kg</span>
+              </div>
+              <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#EDEAFF' }}>
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: `${progress}%`, backgroundColor: '#7B6EF6' }}
+                />
+              </div>
+            </div>
+
+            {/* 사진 버튼 */}
             <EnemyPhotoButton
               hasPhoto={!!todayPhotoPath}
               signedUrl={todayPhotoSignedUrl}
               challengeId={challenge.id}
+              challengeOwnerId={challenge.user_id as string}
             />
           </div>
+
+          {/* 붐업 / 붐다운 */}
+          <BoomVoteButtons
+            challengeId={challenge.id}
+            challengeOwnerId={challenge.user_id as string}
+            initialBoomUp={boomUp}
+            initialBoomDown={boomDown}
+            myVote={myVote}
+          />
+
+          {/* 댓글 */}
+          <CommentBoard
+            challengeId={challenge.id}
+            challengeOwnerId={challenge.user_id as string}
+            buttonLabel="💬 적에게 댓글 달기"
+            placeholder="적에게 한마디..."
+          />
+
         </div>
-
-        {/* 현재 체중 / 목표 체중 */}
-        <div className="flex rounded-2xl overflow-hidden" style={{ backgroundColor: '#3D2510' }}>
-          <div className="flex-1 flex flex-col items-center py-4 gap-1">
-            <span className="text-xs font-medium" style={{ color: LABEL_COLOR }}>현재 체중</span>
-            <span className="text-2xl font-bold" style={{ color: '#FAFAF7' }}>
-              {currentWeight}
-              <span className="text-sm font-normal ml-1" style={{ color: '#7B4A2D' }}>kg</span>
-            </span>
-          </div>
-          <div style={{ width: 1, backgroundColor: '#7B4A2D', margin: '12px 0' }} />
-          <div className="flex-1 flex flex-col items-center py-4 gap-1">
-            <span className="text-xs font-medium" style={{ color: LABEL_COLOR }}>목표 체중</span>
-            <span className="text-2xl font-bold" style={{ color: '#F2C14E' }}>
-              {challenge.target_weight}
-              <span className="text-sm font-normal ml-1" style={{ color: '#7B4A2D' }}>kg</span>
-            </span>
-          </div>
-        </div>
-
-        {/* 적에게 댓글 달기 */}
-        <CommentBoard
-          challengeId={challenge.id}
-          challengeOwnerId={challenge.user_id as string}
-          buttonLabel="🔥 적에게 댓글 달기"
-          placeholder="적에게 한마디..."
-        />
-
-        {/* 붐업 / 붐다운 투표 */}
-        <BoomVoteButtons
-          challengeId={challenge.id}
-          initialBoomUp={boomUp}
-          initialBoomDown={boomDown}
-          myVote={myVote}
-        />
-
-      </div>
       </ScrollableArea>
     </main>
   );

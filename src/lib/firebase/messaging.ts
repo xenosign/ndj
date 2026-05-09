@@ -21,13 +21,28 @@ export async function requestFCMToken(): Promise<string | null> {
       return null;
     }
 
+    const registration = await navigator.serviceWorker.register(
+      "/firebase-messaging-sw.js",
+      { scope: "/" }
+    );
+
+    // SW가 active 상태가 될 때까지 대기
+    await new Promise<void>((resolve) => {
+      if (registration.active) { resolve(); return; }
+      const target = registration.installing ?? registration.waiting;
+      if (!target) { resolve(); return; }
+      target.addEventListener("statechange", function handler() {
+        if (this.state === "activated") {
+          this.removeEventListener("statechange", handler);
+          resolve();
+        }
+      });
+    });
+
     const messaging = getFirebaseMessaging();
     const token = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
-      serviceWorkerRegistration: await navigator.serviceWorker.register(
-        "/firebase-messaging-sw.js",
-        { scope: "/" }
-      ),
+      serviceWorkerRegistration: registration,
     });
 
     return token;

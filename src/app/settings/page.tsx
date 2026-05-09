@@ -25,86 +25,72 @@ export default async function SettingsPage() {
     .eq('user_id', user.id)
     .single();
 
-  const LABEL = '#E8D5B0';
-
   return (
-    <main className="flex flex-1 flex-col" style={{ backgroundColor: '#2C1A0E' }}>
-      <TopHeader title="환경설정" showBack={false} />
+    <main className="flex flex-1 flex-col" style={{ backgroundColor: '#F7F7FC' }}>
+      <TopHeader title="설정" showBack={false} />
 
       <ScrollableArea>
-      <div className="px-5 py-6 flex flex-col gap-6">
+        <div className="px-4 py-5 flex flex-col gap-4 pb-8">
 
-        {/* 닉네임 */}
-        <NicknameEditor initialNickname={profile?.nickname as string | null ?? null} />
+          {/* 닉네임 */}
+          <NicknameEditor initialNickname={profile?.nickname as string | null ?? null} />
 
-        {/* 구분선 */}
-        <div style={{ height: 1, backgroundColor: '#3D2510' }} />
+          {/* 내 다이어트 관리 */}
+          <div
+            className="rounded-2xl px-5 py-4 flex flex-col gap-3"
+            style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 12px rgba(123,110,246,0.08)' }}
+          >
+            <h2 className="text-sm font-bold" style={{ color: '#9898A6' }}>내 다이어트 관리</h2>
 
-        {/* 내 다이어트 관리 */}
-        <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-bold px-1" style={{ color: LABEL }}>
-            내 다이어트 관리
-          </h2>
+            {challenge ? (
+              <>
+                <div
+                  className="rounded-xl px-4 py-3 flex flex-col gap-1"
+                  style={{ backgroundColor: '#F7F7FC' }}
+                >
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full self-start" style={{ backgroundColor: '#EDEAFF', color: '#7B6EF6' }}>진행 중</span>
+                  <p className="text-base font-bold mt-1" style={{ color: '#1A1A2E' }}>{challenge.title}</p>
+                  <p className="text-xs" style={{ color: '#9898A6' }}>
+                    목표일 {new Date(challenge.target_date).toLocaleDateString('ko-KR')}
+                  </p>
+                </div>
 
-          {challenge ? (
-            <div className="flex flex-col gap-3">
-              {/* 현재 챌린지 정보 */}
-              <div
-                className="w-full rounded-2xl px-5 py-4 flex flex-col gap-1"
-                style={{ backgroundColor: '#3D2510' }}
-              >
-                <p className="text-xs font-medium" style={{ color: LABEL }}>진행 중</p>
-                <p className="text-base font-bold" style={{ color: '#F2C14E' }}>
-                  {challenge.title}
+                <Link
+                  href="/diet/edit"
+                  className="w-full h-11 rounded-xl text-sm font-semibold flex items-center justify-center active:opacity-70"
+                  style={{ backgroundColor: '#EDEAFF', color: '#7B6EF6' }}
+                >
+                  ✏️ 다이어트 수정
+                </Link>
+
+                <DietDeleteButton challengeId={challenge.id} />
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-3 py-3">
+                <p className="text-sm font-medium" style={{ color: '#9898A6' }}>
+                  진행 중인 다이어트가 없습니다.
                 </p>
-                <p className="text-xs" style={{ color: LABEL }}>
-                  목표일 {new Date(challenge.target_date).toLocaleDateString('ko-KR')}
-                </p>
+                <Link
+                  href="/diet/start"
+                  className="h-11 px-6 rounded-xl text-sm font-bold flex items-center justify-center active:opacity-70"
+                  style={{ backgroundColor: '#7B6EF6', color: '#FFFFFF' }}
+                >
+                  다이어트 시작하기
+                </Link>
               </div>
+            )}
+          </div>
 
-              {/* 수정 버튼 */}
-              <Link
-                href="/diet/edit"
-                className="w-full h-12 rounded-xl text-sm font-semibold flex items-center justify-center transition-opacity hover:opacity-85 active:opacity-70"
-                style={{ backgroundColor: '#3D2510', color: '#F2C14E' }}
-              >
-                ✏️ 다이어트 수정
-              </Link>
+          {/* 계정 */}
+          <div
+            className="rounded-2xl px-5 py-4 flex flex-col gap-3"
+            style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 12px rgba(123,110,246,0.08)' }}
+          >
+            <h2 className="text-sm font-bold" style={{ color: '#9898A6' }}>계정</h2>
+            <LogoutButton />
+          </div>
 
-              {/* 삭제 버튼 */}
-              <DietDeleteButton challengeId={challenge.id} />
-            </div>
-          ) : (
-            <div
-              className="w-full rounded-2xl px-5 py-5 flex flex-col items-center gap-3"
-              style={{ backgroundColor: '#3D2510' }}
-            >
-              <p className="text-sm font-medium" style={{ color: LABEL }}>
-                진행 중인 다이어트가 없습니다.
-              </p>
-              <Link
-                href="/diet/start"
-                className="h-11 px-6 rounded-xl text-sm font-semibold flex items-center justify-center transition-opacity hover:opacity-85"
-                style={{ backgroundColor: '#F2C14E', color: '#2C1A0E' }}
-              >
-                다이어트 시작하기
-              </Link>
-            </div>
-          )}
-        </section>
-
-        {/* 구분선 */}
-        <div style={{ height: 1, backgroundColor: '#3D2510' }} />
-
-        {/* 계정 */}
-        <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-bold px-1" style={{ color: LABEL }}>
-            계정
-          </h2>
-          <LogoutButton />
-        </section>
-
-      </div>
+        </div>
       </ScrollableArea>
     </main>
   );

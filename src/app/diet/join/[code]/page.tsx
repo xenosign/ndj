@@ -81,7 +81,7 @@ export default async function JoinCodePage({
             </p>
           </div>
         ) : (
-          <JoinButton challengeId={challenge.id} />
+          <JoinButton challengeId={challenge.id} challengeOwnerId={challenge.user_id as string} />
         )}
       </div>
     </main>

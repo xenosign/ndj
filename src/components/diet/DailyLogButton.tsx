@@ -12,16 +12,10 @@ interface Props {
   todayPhotoPath: string | null;
 }
 
-export default function DailyLogButton({
-  challengeId,
-  userId,
-  todayWeight,
-  todayPhotoPath,
-}: Props) {
+export default function DailyLogButton({ challengeId, userId, todayWeight, todayPhotoPath }: Props) {
   const router = useRouter();
   const photoFileInputRef = useRef<HTMLInputElement>(null);
 
-  // 사진 업로드 팝업
   const [photoUploadOpen, setPhotoUploadOpen] = useState(false);
   const [uploadWeight, setUploadWeight] = useState(todayWeight !== null ? String(todayWeight) : '');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -29,11 +23,8 @@ export default function DailyLogButton({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  // 사진 보기 팝업
   const [photoViewOpen, setPhotoViewOpen] = useState(false);
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
-
-  // 사진 경로 로컬 상태 (업로드 후 버튼 텍스트 즉시 반영)
   const [currentPhotoPath, setCurrentPhotoPath] = useState<string | null>(todayPhotoPath);
 
   function handlePhotoUploadOpen() {
@@ -52,14 +43,8 @@ export default function DailyLogButton({
   }
 
   async function handlePhotoUploadSubmit() {
-    if (!uploadFile) {
-      setUploadError('사진을 선택해주세요.');
-      return;
-    }
-    if (todayWeight === null && !uploadWeight) {
-      setUploadError('체중을 입력해주세요.');
-      return;
-    }
+    if (!uploadFile) { setUploadError('사진을 선택해주세요.'); return; }
+    if (todayWeight === null && !uploadWeight) { setUploadError('체중을 입력해주세요.'); return; }
     setUploading(true);
     setUploadError(null);
     try {
@@ -71,13 +56,8 @@ export default function DailyLogButton({
         .upload(path, uploadFile, { upsert: true });
       if (uploadErr) throw uploadErr;
       const { error: logErr } = await supabase.from('diet_daily_logs').upsert(
-        {
-          challenge_id: challengeId,
-          logged_date: today,
-          weight: todayWeight !== null ? todayWeight : parseFloat(uploadWeight),
-          photo_url: path,
-        },
-        { onConflict: 'challenge_id,logged_date' },
+        { challenge_id: challengeId, logged_date: today, weight: todayWeight !== null ? todayWeight : parseFloat(uploadWeight), photo_url: path },
+        { onConflict: 'challenge_id,logged_date' }
       );
       if (logErr) throw logErr;
       setCurrentPhotoPath(path);
@@ -92,53 +72,41 @@ export default function DailyLogButton({
   async function handleViewPhoto() {
     if (!currentPhotoPath) return;
     const supabase = createClient();
-    const { data } = await supabase.storage
-      .from('diet-photos')
-      .createSignedUrl(currentPhotoPath, 3600);
-    if (data?.signedUrl) {
-      setSignedUrl(data.signedUrl);
-      setPhotoViewOpen(true);
-    }
+    const { data } = await supabase.storage.from('diet-photos').createSignedUrl(currentPhotoPath, 3600);
+    if (data?.signedUrl) { setSignedUrl(data.signedUrl); setPhotoViewOpen(true); }
   }
 
   return (
     <>
-      {/* 체중 사진 버튼 */}
       <button
         onClick={currentPhotoPath ? handleViewPhoto : handlePhotoUploadOpen}
-        className="px-5 py-2 rounded-full text-sm font-semibold transition-opacity hover:opacity-85 active:opacity-70"
+        className="w-full h-14 rounded-2xl font-bold text-sm transition-opacity active:opacity-80"
         style={{
-          backgroundColor: currentPhotoPath ? '#3D2510' : '#C47B3A',
-          color: currentPhotoPath ? '#E8D5B0' : '#FAFAF7',
+          backgroundColor: currentPhotoPath ? '#EDEAFF' : '#7B6EF6',
+          color: currentPhotoPath ? '#7B6EF6' : '#FFFFFF',
         }}
       >
-        {currentPhotoPath ? '📷 체중 사진 보기' : '📷 체중 사진 올리기'}
+        {currentPhotoPath ? '📷 오늘 체중 사진 보기' : '📷 오늘 체중 기록하기'}
       </button>
 
-      {/* 체중 사진 올리기 팝업 */}
+      {/* 업로드 팝업 */}
       {photoUploadOpen && (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
           onClick={() => setPhotoUploadOpen(false)}
         >
           <div
             className="w-full max-w-[430px] rounded-t-3xl px-6 pt-5 pb-10 flex flex-col gap-5"
-            style={{ backgroundColor: '#3D2510' }}
+            style={{ backgroundColor: '#FFFFFF' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-10 h-1 rounded-full mx-auto" style={{ backgroundColor: '#7B4A2D' }} />
+            <div className="w-10 h-1 rounded-full mx-auto" style={{ backgroundColor: '#EBEBF5' }} />
+            <h2 className="text-base font-bold" style={{ color: '#1A1A2E' }}>오늘 체중 기록</h2>
 
-            <h2 className="text-base font-bold" style={{ color: '#F2C14E' }}>
-              체중 사진 올리기
-            </h2>
-
-            {/* 체중 미등록 시 체중 입력 필드 표시 */}
             {todayWeight === null && (
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold" style={{ color: '#E8D5B0' }}>
-                  오늘 체중
-                </label>
+                <label className="text-xs font-semibold" style={{ color: '#9898A6' }}>오늘 체중</label>
                 <div className="relative">
                   <input
                     type="number"
@@ -146,15 +114,10 @@ export default function DailyLogButton({
                     placeholder="0.0"
                     value={uploadWeight}
                     onChange={(e) => setUploadWeight(e.target.value)}
-                    className="w-full h-12 px-4 pr-10 rounded-xl text-sm outline-none"
-                    style={{ backgroundColor: '#2C1A0E', color: '#FAFAF7' }}
+                    className="w-full h-12 px-4 pr-10 rounded-xl text-sm outline-none border"
+                    style={{ backgroundColor: '#F7F7FC', color: '#1A1A2E', borderColor: '#EBEBF5' }}
                   />
-                  <span
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium"
-                    style={{ color: '#7B4A2D' }}
-                  >
-                    kg
-                  </span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium" style={{ color: '#9898A6' }}>kg</span>
                 </div>
               </div>
             )}
@@ -163,8 +126,8 @@ export default function DailyLogButton({
               <button
                 type="button"
                 onClick={() => photoFileInputRef.current?.click()}
-                className="h-11 px-4 rounded-xl text-sm font-semibold transition-opacity hover:opacity-85 active:opacity-70"
-                style={{ backgroundColor: '#7B4A2D', color: '#F4E6C6' }}
+                className="h-11 px-4 rounded-xl text-sm font-semibold border transition-opacity active:opacity-70"
+                style={{ backgroundColor: '#F7F7FC', color: '#1A1A2E', borderColor: '#EBEBF5' }}
               >
                 📷 사진 선택
               </button>
@@ -174,71 +137,54 @@ export default function DailyLogButton({
                   <button
                     type="button"
                     onClick={() => { setUploadPreview(null); setUploadFile(null); }}
-                    className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-black/60 text-white text-xs"
-                  >
-                    ✕
-                  </button>
+                    className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-black/50 text-white text-xs"
+                  >✕</button>
                 </div>
               )}
-              <input
-                ref={photoFileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleUploadFileChange}
-              />
+              <input ref={photoFileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadFileChange} />
             </div>
 
-            {uploadError && (
-              <p className="text-xs font-medium" style={{ color: '#F5A58A' }}>{uploadError}</p>
-            )}
+            {uploadError && <p className="text-xs font-medium" style={{ color: '#F44' }}>{uploadError}</p>}
 
             <button
               onClick={handlePhotoUploadSubmit}
               disabled={uploading}
-              className="w-full h-13 rounded-xl font-bold text-sm transition-opacity hover:opacity-85 active:opacity-70 disabled:opacity-50"
-              style={{ backgroundColor: '#F2C14E', color: '#2C1A0E' }}
+              className="w-full h-13 rounded-xl font-bold text-sm transition-opacity disabled:opacity-50"
+              style={{ backgroundColor: '#7B6EF6', color: '#FFFFFF' }}
             >
-              {uploading ? '업로드 중...' : '사진 등록'}
+              {uploading ? '업로드 중...' : '기록 저장'}
             </button>
           </div>
         </div>
       )}
 
-      {/* 체중 사진 보기 팝업 */}
+      {/* 사진 보기 팝업 */}
       {photoViewOpen && signedUrl && (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
           onClick={() => setPhotoViewOpen(false)}
         >
           <div
             className="w-full max-w-[430px] rounded-t-3xl flex flex-col"
-            style={{ backgroundColor: '#3D2510', maxHeight: '85dvh' }}
+            style={{ backgroundColor: '#FFFFFF', maxHeight: '85dvh' }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* 핸들 + 제목 */}
             <div className="px-6 pt-5 pb-3 shrink-0">
-              <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ backgroundColor: '#7B4A2D' }} />
-              <h2 className="text-base font-bold" style={{ color: '#F2C14E' }}>오늘 체중 사진</h2>
+              <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ backgroundColor: '#EBEBF5' }} />
+              <h2 className="text-base font-bold" style={{ color: '#1A1A2E' }}>오늘 체중 사진</h2>
             </div>
-
-            {/* 사진 스크롤 영역 */}
             <div className="overflow-y-auto px-6">
               <div className="w-full rounded-2xl overflow-hidden">
                 <img src={signedUrl} alt="오늘 체중 사진" className="w-full h-auto" />
               </div>
             </div>
-
-            {/* 닫기 버튼 */}
             <div className="px-6 pt-4 pb-10 shrink-0">
               <button
                 onClick={() => setPhotoViewOpen(false)}
-                className="w-full h-12 rounded-xl font-bold text-sm transition-opacity hover:opacity-85 active:opacity-70"
-                style={{ backgroundColor: '#7B4A2D', color: '#F4E6C6' }}
-              >
-                닫기
-              </button>
+                className="w-full h-12 rounded-xl font-bold text-sm"
+                style={{ backgroundColor: '#F7F7FC', color: '#1A1A2E' }}
+              >닫기</button>
             </div>
           </div>
         </div>

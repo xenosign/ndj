@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { notifyUser } from '@/lib/notify';
 
-export default function JoinButton({ challengeId }: { challengeId: string }) {
+export default function JoinButton({ challengeId, challengeOwnerId }: { challengeId: string; challengeOwnerId: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +26,16 @@ export default function JoinButton({ challengeId }: { challengeId: string }) {
       setLoading(false);
       return;
     }
+
+    const { data: profile } = await supabase.from('profiles').select('nickname').eq('id', user.id).single();
+    const nickname = profile?.nickname ?? '누군가';
+    notifyUser({
+      targetUserId: challengeOwnerId,
+      title: '새로운 적이 나타났어요 ⚔️',
+      body: `${nickname}님이 회원님의 챌린지에 참전했습니다!`,
+      url: '/diet/my',
+    });
+
     router.push('/diet/enemies');
   }
 

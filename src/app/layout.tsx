@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
+import NotificationInit from "@/components/layout/NotificationInit";
+import NotificationToast from "@/components/layout/NotificationToast";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import Script from "next/script";
 
 export const metadata: Metadata = {
@@ -29,8 +32,11 @@ export default function RootLayout({
           `}
         </Script>
         <div id="mobile-frame">
+          <NotificationBell />
           {children}
           <BottomNav />
+          <NotificationInit />
+          <NotificationToast />
           <script src="https://otmmvbbxdcuhddkphxwy.supabase.co/functions/v1/sdk?id=202deded-e256-4226-b158-c13ec6e35dad"></script>
         </div>
       </body>

@@ -2,26 +2,23 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { notifyUser } from '@/lib/notify';
 
 interface Props {
   challengeId: string;
+  challengeOwnerId: string;
   initialBoomUp: number;
   initialBoomDown: number;
-  myVote: boolean | null; // true=붐업, false=붐다운, null=미투표
+  myVote: boolean | null;
 }
 
 export default function BoomVoteButtons({
-  challengeId,
-  initialBoomUp,
-  initialBoomDown,
-  myVote,
+  challengeId, challengeOwnerId, initialBoomUp, initialBoomDown, myVote,
 }: Props) {
   const [voted, setVoted] = useState<boolean | null>(myVote);
   const [boomUp, setBoomUp] = useState(initialBoomUp);
   const [boomDown, setBoomDown] = useState(initialBoomDown);
   const [loading, setLoading] = useState(false);
-
-  const LABEL_COLOR = '#E8D5B0';
 
   async function handleVote(isBoomUp: boolean) {
     if (loading) return;
@@ -30,76 +27,77 @@ export default function BoomVoteButtons({
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setLoading(false); return; }
 
-    // 기존 투표 삭제
-    await supabase
-      .from('diet_booms')
-      .delete()
-      .eq('challenge_id', challengeId)
-      .eq('user_id', user.id);
+    await supabase.from('diet_booms').delete()
+      .eq('challenge_id', challengeId).eq('user_id', user.id);
 
     if (voted === isBoomUp) {
-      // 같은 버튼 재클릭 → 투표 취소
       if (isBoomUp) setBoomUp(v => v - 1);
       else setBoomDown(v => v - 1);
       setVoted(null);
     } else {
-      // 다른 버튼 클릭 or 새 투표
       const today = new Date().toISOString().split('T')[0];
       await supabase.from('diet_booms').insert({
-        challenge_id: challengeId,
-        user_id: user.id,
-        voted_date: today,
-        is_boom_up: isBoomUp,
+        challenge_id: challengeId, user_id: user.id, voted_date: today, is_boom_up: isBoomUp,
       });
       if (voted !== null) {
-        // 반대 투표로 변경 → 이전 카운트 차감
         if (voted) setBoomUp(v => v - 1);
         else setBoomDown(v => v - 1);
       }
       if (isBoomUp) setBoomUp(v => v + 1);
       else setBoomDown(v => v + 1);
       setVoted(isBoomUp);
+
+      const { data: profile } = await supabase.from('profiles').select('nickname').eq('id', user.id).single();
+      const nickname = profile?.nickname ?? '누군가';
+      notifyUser({
+        targetUserId: challengeOwnerId,
+        title: isBoomUp ? '붐업을 받았어요 👍' : '붐다운을 받았어요 👎',
+        body: `${nickname}님이 회원님의 다이어트에 ${isBoomUp ? '붐업' : '붐다운'}했습니다!`,
+        url: '/diet/my',
+      });
     }
     setLoading(false);
   }
 
   return (
-    <div className="flex rounded-2xl overflow-hidden" style={{ backgroundColor: '#3D2510' }}>
+    <div className="flex gap-3">
       {/* 붐업 */}
       <button
         onClick={() => handleVote(true)}
         disabled={loading}
-        className="flex-1 flex flex-col items-center py-4 gap-1 transition-opacity active:opacity-70"
+        className="flex-1 flex flex-col items-center py-4 gap-1 rounded-2xl transition-all active:opacity-70"
         style={{
-          opacity: voted === false ? 0.45 : 1,
-          backgroundColor: voted === true ? '#4A2E18' : undefined,
+          backgroundColor: voted === true ? '#7B6EF6' : '#FFFFFF',
+          boxShadow: '0 2px 12px rgba(123,110,246,0.08)',
+          opacity: voted === false ? 0.5 : 1,
         }}
       >
-        <span className="text-xs font-medium" style={{ color: LABEL_COLOR }}>
-          {voted === true ? '✅ 붐업' : '붐업 👍'}
-        </span>
-        <span className="text-2xl font-bold" style={{ color: '#F2C14E' }}>
+        <span className="text-xl">👍</span>
+        <span className="text-xl font-bold" style={{ color: voted === true ? '#FFFFFF' : '#1A1A2E' }}>
           {boomUp.toLocaleString()}
         </span>
+        <span className="text-xs font-medium" style={{ color: voted === true ? '#EDEAFF' : '#9898A6' }}>
+          {voted === true ? '✓ 붐업' : '붐업'}
+        </span>
       </button>
-
-      <div style={{ width: 1, backgroundColor: '#7B4A2D', margin: '12px 0' }} />
 
       {/* 붐다운 */}
       <button
         onClick={() => handleVote(false)}
         disabled={loading}
-        className="flex-1 flex flex-col items-center py-4 gap-1 transition-opacity active:opacity-70"
+        className="flex-1 flex flex-col items-center py-4 gap-1 rounded-2xl transition-all active:opacity-70"
         style={{
-          opacity: voted === true ? 0.45 : 1,
-          backgroundColor: voted === false ? '#4A2E18' : undefined,
+          backgroundColor: voted === false ? '#FF6B6B' : '#FFFFFF',
+          boxShadow: '0 2px 12px rgba(123,110,246,0.08)',
+          opacity: voted === true ? 0.5 : 1,
         }}
       >
-        <span className="text-xs font-medium" style={{ color: LABEL_COLOR }}>
-          {voted === false ? '✅ 붐다운' : '붐다운 👎'}
-        </span>
-        <span className="text-2xl font-bold" style={{ color: '#F5A58A' }}>
+        <span className="text-xl">👎</span>
+        <span className="text-xl font-bold" style={{ color: voted === false ? '#FFFFFF' : '#1A1A2E' }}>
           {boomDown.toLocaleString()}
+        </span>
+        <span className="text-xs font-medium" style={{ color: voted === false ? '#FFE0E0' : '#9898A6' }}>
+          {voted === false ? '✓ 붐다운' : '붐다운'}
         </span>
       </button>
     </div>

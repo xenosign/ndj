@@ -8,32 +8,28 @@ importScripts(
   "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"
 );
 
-// 환경변수를 Service Worker에서 직접 사용 불가 → 빌드 시 주입하거나 아래처럼 placeholder 사용
-// 실제 값은 클라이언트에서 messaging.ts를 통해 처리됨
-firebase.initializeApp({
-  apiKey: self.__FIREBASE_CONFIG__?.apiKey,
-  authDomain: self.__FIREBASE_CONFIG__?.authDomain,
-  projectId: self.__FIREBASE_CONFIG__?.projectId,
-  storageBucket: self.__FIREBASE_CONFIG__?.storageBucket,
-  messagingSenderId: self.__FIREBASE_CONFIG__?.messagingSenderId,
-  appId: self.__FIREBASE_CONFIG__?.appId,
-});
+// /api/firebase-sw-config 에서 config를 가져와 Firebase 초기화
+async function initFirebase() {
+  const res = await fetch("/api/firebase-sw-config");
+  const config = await res.json();
+  firebase.initializeApp(config);
 
-const messaging = firebase.messaging();
+  const messaging = firebase.messaging();
 
-// 백그라운드 메시지 처리
-messaging.onBackgroundMessage((payload) => {
-  console.log("[firebase-messaging-sw.js] 백그라운드 메시지 수신:", payload);
+  // 백그라운드 메시지 처리
+  messaging.onBackgroundMessage((payload) => {
+    const { title, body, icon } = payload.notification ?? {};
 
-  const { title, body, icon } = payload.notification ?? {};
-
-  self.registration.showNotification(title ?? "알림", {
-    body: body ?? "",
-    icon: icon ?? "/icons/icon-192x192.png",
-    badge: "/icons/icon-192x192.png",
-    data: payload.data,
+    self.registration.showNotification(title ?? "알림", {
+      body: body ?? "",
+      icon: icon ?? "/icons/WEGOBE-logo-192.png",
+      badge: "/icons/WEGOBE-logo-192.png",
+      data: payload.data,
+    });
   });
-});
+}
+
+initFirebase();
 
 // PWA 설치 요건: fetch 이벤트 핸들러 필수
 self.addEventListener("fetch", (event) => {

@@ -5,7 +5,14 @@
       "Bash(npx tsc *)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(Get-ChildItem -Path \"D:\\\\git\\\\ndj\" -Force)",
+      "Bash(Select-Object -Property Name, PSIsContainer)",
+      "Bash(Format-Table -AutoSize)",
+      "Bash(Get-ChildItem -Path \"D:\\\\git\\\\ndj\\\\src\" -Recurse -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object -First 50)",
+      "Bash(Format-Table FullName)",
+      "PowerShell(\\(Get-Item \"D:\\\\git\\\\ndj\\\\src\\\\components\\\\layout\\\\BottomNav.tsx\"\\).LastWriteTime = Get-Date; Write-Output \"touched\")"
     ]
   }
 }

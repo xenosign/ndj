@@ -18,20 +18,22 @@ export default function TopHeader({ title, showBack = true, backHref }: TopHeade
 
   return (
     <header
-      className="flex items-center gap-3 px-5 py-4 shrink-0"
-      style={{ backgroundColor: '#2C1A0E' }}
+      className="flex items-center gap-3 px-5 shrink-0 border-b"
+      style={{ backgroundColor: '#FFFFFF', borderColor: '#EBEBF5', height: 56 }}
     >
       {showBack && (
         <button
           onClick={handleBack}
-          className="text-xl w-8"
-          style={{ color: '#F4E6C6' }}
+          className="flex items-center justify-center w-8 h-8 rounded-full transition-colors active:opacity-60"
+          style={{ color: '#1A1A2E' }}
           aria-label="뒤로가기"
         >
-          ←
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
         </button>
       )}
-      <h1 className="text-lg font-bold" style={{ color: '#F2C14E' }}>
+      <h1 className="text-base font-bold" style={{ color: '#1A1A2E' }}>
         {title}
       </h1>
     </header>

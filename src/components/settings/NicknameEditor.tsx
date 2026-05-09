@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
-const LABEL = '#E8D5B0';
-
 export default function NicknameEditor({ initialNickname }: { initialNickname: string | null }) {
   const [nickname, setNickname] = useState(initialNickname ?? '');
   const [editing, setEditing] = useState(false);
@@ -36,51 +34,54 @@ export default function NicknameEditor({ initialNickname }: { initialNickname: s
   }
 
   return (
-    <section className="flex flex-col gap-3">
-      <h2 className="text-sm font-bold px-1" style={{ color: LABEL }}>닉네임</h2>
+    <div
+      className="rounded-2xl px-5 py-4 flex flex-col gap-3"
+      style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 12px rgba(123,110,246,0.08)' }}
+    >
+      <h2 className="text-sm font-bold" style={{ color: '#9898A6' }}>닉네임</h2>
 
       {editing ? (
-        <div className="flex flex-col gap-3">
+        <>
           <input
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
             maxLength={20}
             placeholder="닉네임 입력"
-            className="w-full px-4 h-12 rounded-xl text-sm outline-none"
-            style={{ backgroundColor: '#3D2510', color: '#FAFAF7' }}
+            className="w-full px-4 h-12 rounded-xl text-sm outline-none border"
+            style={{ backgroundColor: '#F7F7FC', color: '#1A1A2E', borderColor: '#EBEBF5' }}
           />
-          {error && <p className="text-xs px-1" style={{ color: '#F5A58A' }}>{error}</p>}
+          {error && <p className="text-xs px-1" style={{ color: '#F44336' }}>{error}</p>}
           <div className="flex gap-3">
             <button
               onClick={() => { setEditing(false); setInput(nickname); setError(null); }}
-              className="flex-1 h-11 rounded-xl text-sm font-semibold transition-opacity hover:opacity-85"
-              style={{ backgroundColor: '#3D2510', color: LABEL }}
+              className="flex-1 h-11 rounded-xl text-sm font-semibold active:opacity-70"
+              style={{ backgroundColor: '#F7F7FC', color: '#9898A6' }}
             >
               취소
             </button>
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 h-11 rounded-xl text-sm font-bold transition-opacity hover:opacity-85 disabled:opacity-50"
-              style={{ backgroundColor: '#F2C14E', color: '#2C1A0E' }}
+              className="flex-1 h-11 rounded-xl text-sm font-bold active:opacity-70 disabled:opacity-50"
+              style={{ backgroundColor: '#7B6EF6', color: '#FFFFFF' }}
             >
               {saving ? '저장 중...' : '저장'}
             </button>
           </div>
-        </div>
+        </>
       ) : (
         <button
           onClick={() => { setInput(nickname); setEditing(true); }}
-          className="w-full rounded-2xl px-5 py-4 flex items-center justify-between transition-opacity hover:opacity-85 active:opacity-70"
-          style={{ backgroundColor: '#3D2510' }}
+          className="w-full rounded-xl px-4 py-3 flex items-center justify-between active:opacity-70"
+          style={{ backgroundColor: '#F7F7FC' }}
         >
-          <span className="text-base font-semibold" style={{ color: nickname ? '#FAFAF7' : '#7B4A2D' }}>
+          <span className="text-base font-semibold" style={{ color: nickname ? '#1A1A2E' : '#BEBECE' }}>
             {nickname || '닉네임 없음'}
           </span>
-          <span className="text-xs font-medium" style={{ color: '#C47B3A' }}>수정</span>
+          <span className="text-xs font-semibold" style={{ color: '#7B6EF6' }}>수정</span>
         </button>
       )}
-    </section>
+    </div>
   );
 }

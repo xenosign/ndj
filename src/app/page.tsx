@@ -24,7 +24,7 @@ export default function SplashPage() {
   return (
     <main className="relative flex-1 w-full">
       <Image
-        src="/ndj.webp"
+        src="/WEGOBE.webp"
         alt="NDJ"
         fill
         priority

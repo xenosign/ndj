@@ -1,11 +1,11 @@
-import KakaoLoginButton from "@/components/auth/KakaoLoginButton";
+import KakaoLoginButton from '@/components/auth/KakaoLoginButton';
 
 export default function LoginPage() {
   return (
     <main
-      className="flex flex-1 flex-col items-end justify-end p-8 pb-12"
+      className="flex flex-1 flex-col items-end justify-end p-8 pb-8"
       style={{
-        backgroundImage: "url('/ndj.webp')",
+        backgroundImage: "url('/WEGOBE.webp')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}

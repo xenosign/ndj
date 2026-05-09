@@ -27,7 +27,6 @@ export default async function MyDietPage() {
 
   if (!challenge) redirect('/home');
 
-  // invite_code 없으면 생성해서 저장
   let inviteCode = challenge.invite_code as string | null;
   if (!inviteCode) {
     inviteCode = generateInviteCode();
@@ -39,7 +38,6 @@ export default async function MyDietPage() {
 
   const today = new Date().toISOString().split('T')[0];
 
-  // 최근 일일 기록에서 현재 체중 조회
   const { data: latestLog } = await supabase
     .from('diet_daily_logs')
     .select('weight, logged_date, photo_url')
@@ -54,7 +52,6 @@ export default async function MyDietPage() {
   const todayPhotoPath: string | null =
     latestLog?.logged_date === today ? (latestLog.photo_url as string | null) : null;
 
-  // 붐업 / 붐다운 집계
   const { data: booms } = await supabase
     .from('diet_booms')
     .select('is_boom_up')
@@ -66,101 +63,124 @@ export default async function MyDietPage() {
   const daysLeft = Math.ceil(
     (new Date(challenge.target_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
   );
-  const diff = +(challenge.target_weight - currentWeight).toFixed(1);
-  const LABEL_COLOR = '#E8D5B0';
+
+  const startWeight = challenge.start_weight as number;
+  const targetWeight = challenge.target_weight as number;
+  const diff = +(targetWeight - currentWeight).toFixed(1);
+
+  // 진행률 (감량 방향)
+  const totalChange = startWeight - targetWeight;
+  const currentChange = startWeight - currentWeight;
+  const progress = totalChange > 0
+    ? Math.min(100, Math.max(0, Math.round((currentChange / totalChange) * 100)))
+    : 0;
 
   return (
-    <main className="flex flex-1 flex-col" style={{ backgroundColor: '#2C1A0E' }}>
-      <TopHeader title="내 다이어트" backHref="/home" />
+    <main className="flex flex-1 flex-col" style={{ backgroundColor: '#F7F7FC' }}>
+      <TopHeader title="내 다이어트" showBack={false} />
 
       <ScrollableArea>
-      <div className="px-6 py-6 flex flex-col gap-6">
+        <div className="px-4 py-5 flex flex-col gap-4 pb-8">
 
-        {/* 예치금(좌) + D-X일(우) */}
-        <div className="flex items-center justify-between">
-          <span
-            className="text-sm font-semibold px-3 py-1 rounded-full"
-            style={{ backgroundColor: '#3D2510', color: '#E8D5B0' }}
+          {/* 챌린지 타이틀 카드 */}
+          <div
+            className="rounded-2xl px-5 py-4 flex flex-col gap-3"
+            style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 12px rgba(123,110,246,0.08)' }}
           >
-            💰 {(challenge.deposit as number).toLocaleString()}원
-          </span>
-          <span
-            className="text-sm font-semibold px-3 py-1 rounded-full"
-            style={{ backgroundColor: '#7B4A2D', color: '#F2C14E' }}
+            <p className="text-base font-bold" style={{ color: '#1A1A2E' }}>{challenge.title as string}</p>
+            <div className="flex items-center gap-2">
+              <span
+                className="text-xs font-semibold px-3 py-1 rounded-full"
+                style={{ backgroundColor: '#EDEAFF', color: '#7B6EF6' }}
+              >
+                D-{daysLeft}일
+              </span>
+              <span
+                className="text-xs font-semibold px-3 py-1 rounded-full"
+                style={{ backgroundColor: '#F5F5FA', color: '#9898A6' }}
+              >
+                💰 {(challenge.deposit as number).toLocaleString()}원
+              </span>
+            </div>
+          </div>
+
+          {/* 체중 현황 카드 */}
+          <div
+            className="rounded-2xl px-5 py-5 flex flex-col gap-4"
+            style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 12px rgba(123,110,246,0.08)' }}
           >
-            D - {daysLeft}일
-          </span>
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="text-xs font-medium mb-1" style={{ color: '#9898A6' }}>현재 체중</p>
+                <p className="font-extrabold leading-none" style={{ color: '#1A1A2E', fontSize: '48px' }}>
+                  {currentWeight}
+                  <span className="text-lg font-semibold ml-1" style={{ color: '#9898A6' }}>kg</span>
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-medium mb-1" style={{ color: '#9898A6' }}>목표까지</p>
+                <p className="text-2xl font-bold" style={{ color: diff <= 0 ? '#4CAF50' : '#7B6EF6' }}>
+                  {diff > 0 ? `${diff}kg` : `${Math.abs(diff)}kg ✓`}
+                </p>
+              </div>
+            </div>
+
+            {/* 진행률 바 */}
+            <div>
+              <div className="flex justify-between mb-1.5">
+                <span className="text-xs" style={{ color: '#9898A6' }}>시작 {startWeight}kg</span>
+                <span className="text-xs font-semibold" style={{ color: '#7B6EF6' }}>{progress}%</span>
+                <span className="text-xs" style={{ color: '#9898A6' }}>목표 {targetWeight}kg</span>
+              </div>
+              <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#EDEAFF' }}>
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{ width: `${progress}%`, backgroundColor: '#7B6EF6' }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 오늘 체중 기록 버튼 */}
+          <DailyLogButton
+            challengeId={challenge.id}
+            userId={user.id}
+            todayWeight={todayWeight}
+            todayPhotoPath={todayPhotoPath}
+          />
+
+          {/* 붐업 / 붐다운 */}
+          <div className="flex gap-3">
+            <div
+              className="flex-1 rounded-2xl flex flex-col items-center py-4 gap-1"
+              style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 12px rgba(123,110,246,0.08)' }}
+            >
+              <span className="text-lg">👍</span>
+              <p className="text-xl font-bold" style={{ color: '#1A1A2E' }}>{boomUp}</p>
+              <p className="text-xs" style={{ color: '#9898A6' }}>붐업</p>
+            </div>
+            <div
+              className="flex-1 rounded-2xl flex flex-col items-center py-4 gap-1"
+              style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 12px rgba(123,110,246,0.08)' }}
+            >
+              <span className="text-lg">👎</span>
+              <p className="text-xl font-bold" style={{ color: '#1A1A2E' }}>{boomDown}</p>
+              <p className="text-xs" style={{ color: '#9898A6' }}>붐다운</p>
+            </div>
+          </div>
+
+          {/* 적들의 댓글 */}
+          <CommentBoard
+            challengeId={challenge.id}
+            challengeOwnerId={user.id}
+            buttonLabel="💬 적들의 댓글 보기"
+            placeholder="적들에게 한마디..."
+          />
+
+          {/* 적들 초대 */}
+          <InviteModal inviteCode={inviteCode ?? ''} />
+
         </div>
-
-        {/* 다이어트 제목 */}
-        <h2 className="text-base font-bold text-center" style={{ color: '#F2C14E' }}>
-          {challenge.title}
-        </h2>
-
-        {/* 목표까지 남은 체중 */}
-        <div className="flex flex-col items-center gap-2 py-6">
-          <p className="text-sm font-medium" style={{ color: LABEL_COLOR }}>
-            목표 체중까지
-          </p>
-          <p
-            className="font-extrabold leading-none"
-            style={{ color: '#F2C14E', fontSize: '72px' }}
-          >
-            {diff > 0 ? `+${diff}` : diff}kg
-          </p>
-          <div className="mt-4">
-            <DailyLogButton
-              challengeId={challenge.id}
-              userId={user.id}
-              todayWeight={todayWeight}
-              todayPhotoPath={todayPhotoPath}
-            />
-          </div>
-        </div>
-
-        {/* 현재 체중 / 목표 체중 */}
-        <div className="flex rounded-2xl overflow-hidden" style={{ backgroundColor: '#3D2510' }}>
-          <div className="flex-1 flex flex-col items-center py-4 gap-1">
-            <span className="text-xs font-medium" style={{ color: LABEL_COLOR }}>현재 체중</span>
-            <span className="text-2xl font-bold" style={{ color: '#FAFAF7' }}>
-              {currentWeight}
-              <span className="text-sm font-normal ml-1" style={{ color: '#7B4A2D' }}>kg</span>
-            </span>
-          </div>
-          <div style={{ width: 1, backgroundColor: '#7B4A2D', margin: '12px 0' }} />
-          <div className="flex-1 flex flex-col items-center py-4 gap-1">
-            <span className="text-xs font-medium" style={{ color: LABEL_COLOR }}>목표 체중</span>
-            <span className="text-2xl font-bold" style={{ color: '#F2C14E' }}>
-              {challenge.target_weight}
-              <span className="text-sm font-normal ml-1" style={{ color: '#7B4A2D' }}>kg</span>
-            </span>
-          </div>
-        </div>
-
-        {/* 적들의 댓글 보기 */}
-        <CommentBoard
-          challengeId={challenge.id}
-          challengeOwnerId={user.id}
-          buttonLabel="🔥 적들의 댓글 보기"
-          placeholder="적들에게 한마디..."
-        />
-
-        {/* 붐업 / 붐다운 */}
-        <div className="flex rounded-2xl overflow-hidden" style={{ backgroundColor: '#3D2510' }}>
-          <div className="flex-1 flex flex-col items-center py-4 gap-1">
-            <span className="text-xs font-medium" style={{ color: LABEL_COLOR }}>붐업 👍</span>
-            <span className="text-2xl font-bold" style={{ color: '#F2C14E' }}>{boomUp.toLocaleString()}</span>
-          </div>
-          <div style={{ width: 1, backgroundColor: '#7B4A2D', margin: '12px 0' }} />
-          <div className="flex-1 flex flex-col items-center py-4 gap-1">
-            <span className="text-xs font-medium" style={{ color: LABEL_COLOR }}>붐다운 👎</span>
-            <span className="text-2xl font-bold" style={{ color: '#F5A58A' }}>{boomDown.toLocaleString()}</span>
-          </div>
-        </div>
-
-        {/* 적들 초대하기 */}
-        <InviteModal inviteCode={inviteCode ?? ''} />
-      </div>
       </ScrollableArea>
     </main>
   );
