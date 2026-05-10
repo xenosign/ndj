@@ -2,20 +2,20 @@
 
 :root {
   /* WEGOBE 색상 시스템 */
-  --bg: #F7F7FC;
-  --surface: #FFFFFF;
-  --primary: #7B6EF6;
-  --primary-light: #EDEAFF;
-  --text: #1A1A2E;
-  --text-secondary: #9898A6;
-  --border: #EBEBF5;
-  --nav-bg: #FFFFFF;
+  --bg: #F8F4FF;
+  --surface: #F8F4FF;
+  --primary: #7B4DBE;
+  --primary-light: #EDE0FF;
+  --text: #1A0A3D;
+  --text-secondary: #A67FD4;
+  --border: #D4C0F0;
+  --nav-bg: #F8F4FF;
 
   font-size: 120%;
 }
 
 body {
-  background: #E0E0EE;
+  background: #1A0A3D;
   color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
 }

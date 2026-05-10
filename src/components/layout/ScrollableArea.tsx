@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 
@@ -36,11 +36,11 @@ export default function ScrollableArea({ children }: { children: React.ReactNode
             scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
           }
           className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 w-9 h-9 rounded-full flex items-center justify-center shadow-lg transition-opacity hover:opacity-85 active:opacity-70"
-          style={{ backgroundColor: '#F2C14E' }}
+          style={{ backgroundColor: '#A67FD4' }}
           aria-label="맨 아래로"
         >
           <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1 1L9 11L17 1" stroke="#2C1A0E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M1 1L9 11L17 1" stroke="#1A0A3D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
       )}

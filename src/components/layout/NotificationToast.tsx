@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { onForegroundMessage } from "@/lib/firebase/messaging";
@@ -43,7 +43,7 @@ export default function NotificationToast() {
         <div
           key={toast.id}
           className="flex items-start gap-3 rounded-2xl px-4 py-3 shadow-lg"
-          style={{ backgroundColor: "#3D2510", border: "1px solid #7B4A2D" }}
+          style={{ backgroundColor: "#2A1560", border: "1px solid #4A2B8A" }}
         >
           <img
             src="/icons/WEGOBE-logo-192.png"
@@ -51,17 +51,17 @@ export default function NotificationToast() {
             className="w-8 h-8 rounded-full shrink-0 mt-0.5"
           />
           <div className="flex flex-col gap-0.5 min-w-0">
-            <p className="text-sm font-bold truncate" style={{ color: "#F2C14E" }}>
+            <p className="text-sm font-bold truncate" style={{ color: "#A67FD4" }}>
               {toast.title}
             </p>
-            <p className="text-xs leading-snug" style={{ color: "#E8D5B0" }}>
+            <p className="text-xs leading-snug" style={{ color: "#D4C0F0" }}>
               {toast.body}
             </p>
           </div>
           <button
             onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
             className="shrink-0 text-xs leading-none mt-0.5"
-            style={{ color: "#7B4A2D" }}
+            style={{ color: "#4A2B8A" }}
           >
             ✕
           </button>

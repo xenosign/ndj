@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
@@ -130,7 +130,7 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
       <button
         onClick={handleOpen}
         className="w-full h-14 rounded-2xl font-bold text-sm transition-opacity active:opacity-70"
-        style={{ backgroundColor: '#F7F7FC', color: '#1A1A2E', border: '1px solid #EBEBF5' }}
+        style={{ backgroundColor: '#D4C0F0', color: '#1A0A3D' }}
       >
         {buttonLabel}
       </button>
@@ -144,7 +144,7 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
           <div
             ref={sheetRef}
             className="w-full max-w-[430px] rounded-t-3xl flex flex-col"
-            style={{ backgroundColor: '#FFFFFF', maxHeight: '80dvh', transition: 'transform 0.15s ease' }}
+            style={{ backgroundColor: '#F8F4FF', maxHeight: '80dvh', transition: 'transform 0.15s ease' }}
             onClick={e => e.stopPropagation()}
           >
             {/* 핸들 + 제목 — 드래그 영역 */}
@@ -157,9 +157,9 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
               <div
                 onClick={() => setOpen(false)}
                 className="w-10 h-1 rounded-full mx-auto mb-4 cursor-pointer"
-                style={{ backgroundColor: '#EBEBF5' }}
+                style={{ backgroundColor: '#D4C0F0' }}
               />
-              <h2 className="text-base font-bold" style={{ color: '#1A1A2E' }}>댓글 게시판</h2>
+              <h2 className="text-base font-bold" style={{ color: '#1A0A3D' }}>댓글 게시판</h2>
             </div>
 
             {/* 댓글 목록 */}
@@ -168,9 +168,9 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
               style={{ minHeight: 80, maxHeight: '45dvh' }}
             >
               {loading ? (
-                <p className="text-sm text-center py-4" style={{ color: '#9898A6' }}>불러오는 중...</p>
+                <p className="text-sm text-center py-4" style={{ color: '#A67FD4' }}>불러오는 중...</p>
               ) : comments.length === 0 ? (
-                <p className="text-sm text-center py-4" style={{ color: '#9898A6' }}>아직 댓글이 없습니다.</p>
+                <p className="text-sm text-center py-4" style={{ color: '#A67FD4' }}>아직 댓글이 없습니다.</p>
               ) : (
                 comments.map(c => {
                   const isOwner = c.user_id === challengeOwnerId;
@@ -178,24 +178,24 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
                     <div
                       key={c.id}
                       className="flex flex-col gap-1 rounded-xl px-4 py-3"
-                      style={{ backgroundColor: isOwner ? '#EDEAFF' : '#F7F7FC' }}
+                      style={{ backgroundColor: isOwner ? '#EDE0FF' : '#F8F4FF' }}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold" style={{ color: isOwner ? '#7B6EF6' : '#1A1A2E' }}>
+                        <span className="text-xs font-semibold" style={{ color: isOwner ? '#7B4DBE' : '#1A0A3D' }}>
                           {c.nickname ?? '익명'}{isOwner && ' 👑'}
                         </span>
-                        <span className="text-xs" style={{ color: '#BEBECE' }}>
+                        <span className="text-xs" style={{ color: '#C4A0E8' }}>
                           {formatDate(c.created_at)}
                         </span>
                       </div>
-                      <p className="text-sm" style={{ color: '#1A1A2E' }}>{c.content}</p>
+                      <p className="text-sm" style={{ color: '#1A0A3D' }}>{c.content}</p>
                     </div>
                   );
                 })
               )}
             </div>
 
-            <div className="shrink-0 mx-5 my-1" style={{ height: 1, backgroundColor: '#EBEBF5' }} />
+            <div className="shrink-0 mx-5 my-1" style={{ height: 1, backgroundColor: '#D4C0F0' }} />
 
             {/* 입력 영역 */}
             <div className="px-5 pt-3 pb-10 shrink-0 flex flex-col gap-3">
@@ -205,7 +205,7 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
                 value={content}
                 onChange={e => setContent(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none border"
-                style={{ backgroundColor: '#F7F7FC', color: '#1A1A2E', borderColor: '#EBEBF5' }}
+                style={{ backgroundColor: '#F8F4FF', color: '#1A0A3D', borderColor: '#D4C0F0' }}
               />
               {error && (
                 <p className="text-xs font-medium" style={{ color: '#F44336' }}>{error}</p>
@@ -214,7 +214,7 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
                 onClick={handleSubmit}
                 disabled={submitting}
                 className="w-full h-12 rounded-xl font-bold text-sm transition-opacity disabled:opacity-50"
-                style={{ backgroundColor: '#7B6EF6', color: '#FFFFFF' }}
+                style={{ backgroundColor: '#7B4DBE', color: '#F8F4FF' }}
               >
                 {submitting ? '등록 중...' : '댓글 등록'}
               </button>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
@@ -67,16 +67,16 @@ export default function BoomVoteButtons({
         disabled={loading}
         className="flex-1 flex flex-col items-center py-4 gap-1 rounded-2xl transition-all active:opacity-70"
         style={{
-          backgroundColor: voted === true ? '#7B6EF6' : '#FFFFFF',
-          boxShadow: '0 2px 12px rgba(123,110,246,0.08)',
+          backgroundColor: voted === true ? '#7B4DBE' : '#F8F4FF',
+          boxShadow: '0 4px 20px rgba(123,77,190,0.28)',
           opacity: voted === false ? 0.5 : 1,
         }}
       >
         <span className="text-xl">👍</span>
-        <span className="text-xl font-bold" style={{ color: voted === true ? '#FFFFFF' : '#1A1A2E' }}>
+        <span className="text-xl font-bold" style={{ color: voted === true ? '#F8F4FF' : '#1A0A3D' }}>
           {boomUp.toLocaleString()}
         </span>
-        <span className="text-xs font-medium" style={{ color: voted === true ? '#EDEAFF' : '#9898A6' }}>
+        <span className="text-xs font-medium" style={{ color: voted === true ? '#EDE0FF' : '#A67FD4' }}>
           {voted === true ? '✓ 붐업' : '붐업'}
         </span>
       </button>
@@ -87,16 +87,16 @@ export default function BoomVoteButtons({
         disabled={loading}
         className="flex-1 flex flex-col items-center py-4 gap-1 rounded-2xl transition-all active:opacity-70"
         style={{
-          backgroundColor: voted === false ? '#FF6B6B' : '#FFFFFF',
-          boxShadow: '0 2px 12px rgba(123,110,246,0.08)',
+          backgroundColor: voted === false ? '#FF6B6B' : '#F8F4FF',
+          boxShadow: '0 4px 20px rgba(123,77,190,0.28)',
           opacity: voted === true ? 0.5 : 1,
         }}
       >
         <span className="text-xl">👎</span>
-        <span className="text-xl font-bold" style={{ color: voted === false ? '#FFFFFF' : '#1A1A2E' }}>
+        <span className="text-xl font-bold" style={{ color: voted === false ? '#F8F4FF' : '#1A0A3D' }}>
           {boomDown.toLocaleString()}
         </span>
-        <span className="text-xs font-medium" style={{ color: voted === false ? '#FFE0E0' : '#9898A6' }}>
+        <span className="text-xs font-medium" style={{ color: voted === false ? '#FFE0E0' : '#A67FD4' }}>
           {voted === false ? '✓ 붐다운' : '붐다운'}
         </span>
       </button>

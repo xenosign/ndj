@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -15,10 +15,10 @@ export default function DietJoinPage() {
   }
 
   return (
-    <main className="flex flex-1 flex-col" style={{ backgroundColor: '#2C1A0E' }}>
+    <main className="flex flex-1 flex-col" style={{ backgroundColor: '#1A0A3D' }}>
       <TopHeader title="적 다이어트 참여" backHref="/home" />
       <div className="flex-1 flex flex-col items-center justify-center px-6 gap-6">
-        <p className="text-base font-semibold text-center" style={{ color: '#E8D5B0' }}>
+        <p className="text-base font-semibold text-center" style={{ color: '#D4C0F0' }}>
           시크릿 코드를 입력하세요
         </p>
         <input
@@ -29,8 +29,8 @@ export default function DietJoinPage() {
           onChange={e => setCode(e.target.value.toUpperCase())}
           className="w-full h-14 px-4 rounded-xl text-center text-lg font-bold outline-none"
           style={{
-            backgroundColor: '#3D2510',
-            color: '#F2C14E',
+            backgroundColor: '#2A1560',
+            color: '#A67FD4',
             letterSpacing: '0.15em',
           }}
         />
@@ -38,7 +38,7 @@ export default function DietJoinPage() {
           onClick={handleSubmit}
           disabled={code.trim().length !== 16}
           className="w-full h-14 rounded-xl font-bold text-base transition-opacity hover:opacity-85 active:opacity-70 disabled:opacity-40"
-          style={{ backgroundColor: '#F2C14E', color: '#2C1A0E' }}
+          style={{ backgroundColor: '#A67FD4', color: '#1A0A3D' }}
         >
           참여하기
         </button>

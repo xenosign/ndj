@@ -1,4 +1,4 @@
-import ScrollableArea from '@/components/layout/ScrollableArea';
+﻿import ScrollableArea from '@/components/layout/ScrollableArea';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
@@ -53,7 +53,7 @@ export default async function EnemiesDietPage() {
   }[];
 
   return (
-    <main className="flex flex-1 flex-col" style={{ backgroundColor: '#F7F7FC' }}>
+    <main className="flex flex-1 flex-col" style={{ backgroundColor: '#F8F4FF' }}>
       <TopHeader title="적들의 다이어트" showBack={false} />
 
       <ScrollableArea>
@@ -62,13 +62,13 @@ export default async function EnemiesDietPage() {
           {challenges.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-5 py-20">
               <span className="text-5xl">⚔️</span>
-              <p className="text-sm font-medium text-center" style={{ color: '#9898A6' }}>
+              <p className="text-sm font-medium text-center" style={{ color: '#A67FD4' }}>
                 참여 중인 다이어트가 없습니다.
               </p>
               <Link
                 href="/diet/join"
                 className="px-6 py-3 rounded-full text-sm font-bold"
-                style={{ backgroundColor: '#7B6EF6', color: '#FFFFFF' }}
+                style={{ backgroundColor: '#7B4DBE', color: '#F8F4FF' }}
               >
                 적 다이어트 참여하기
               </Link>
@@ -92,40 +92,40 @@ export default async function EnemiesDietPage() {
                     key={challenge.id}
                     href={`/diet/enemies/${challenge.id}`}
                     className="w-full rounded-2xl p-5 flex flex-col gap-3 active:opacity-70"
-                    style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 12px rgba(123,110,246,0.08)' }}
+                    style={{ backgroundColor: '#F8F4FF', boxShadow: '0 4px 20px rgba(123,77,190,0.28)' }}
                   >
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-semibold" style={{ color: '#9898A6' }}>
+                      <p className="text-xs font-semibold" style={{ color: '#A67FD4' }}>
                         {nickname ?? '알 수 없음'}
                       </p>
                       <span
                         className="text-xs font-bold px-2.5 py-1 rounded-full"
-                        style={{ backgroundColor: '#EDEAFF', color: '#7B6EF6' }}
+                        style={{ backgroundColor: '#EDE0FF', color: '#7B4DBE' }}
                       >
                         D-{daysLeft}일
                       </span>
                     </div>
 
-                    <p className="text-sm font-bold" style={{ color: '#1A1A2E' }}>
+                    <p className="text-sm font-bold" style={{ color: '#1A0A3D' }}>
                       {challenge.title}
                     </p>
 
                     <div>
                       <div className="flex justify-between mb-1.5">
-                        <span className="text-xs" style={{ color: '#9898A6' }}>
+                        <span className="text-xs" style={{ color: '#A67FD4' }}>
                           현재 {currentWeight}kg
                         </span>
-                        <span className="text-xs font-semibold" style={{ color: '#7B6EF6' }}>
+                        <span className="text-xs font-semibold" style={{ color: '#7B4DBE' }}>
                           {progress}%
                         </span>
-                        <span className="text-xs" style={{ color: '#9898A6' }}>
+                        <span className="text-xs" style={{ color: '#A67FD4' }}>
                           목표 {challenge.target_weight}kg
                         </span>
                       </div>
-                      <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#EDEAFF' }}>
+                      <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#EDE0FF' }}>
                         <div
                           className="h-full rounded-full"
-                          style={{ width: `${progress}%`, backgroundColor: '#7B6EF6' }}
+                          style={{ width: `${progress}%`, backgroundColor: '#7B4DBE' }}
                         />
                       </div>
                     </div>
@@ -136,7 +136,7 @@ export default async function EnemiesDietPage() {
               <Link
                 href="/diet/join"
                 className="w-full h-13 rounded-2xl font-bold text-sm flex items-center justify-center border-2 active:opacity-70"
-                style={{ borderColor: '#EBEBF5', color: '#9898A6', backgroundColor: '#FFFFFF' }}
+                style={{ borderColor: '#D4C0F0', color: '#A67FD4', backgroundColor: '#F8F4FF' }}
               >
                 + 적 추가하기
               </Link>

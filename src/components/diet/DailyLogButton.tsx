@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -82,8 +82,8 @@ export default function DailyLogButton({ challengeId, userId, todayWeight, today
         onClick={currentPhotoPath ? handleViewPhoto : handlePhotoUploadOpen}
         className="w-full h-14 rounded-2xl font-bold text-sm transition-opacity active:opacity-80"
         style={{
-          backgroundColor: currentPhotoPath ? '#EDEAFF' : '#7B6EF6',
-          color: currentPhotoPath ? '#7B6EF6' : '#FFFFFF',
+          backgroundColor: currentPhotoPath ? '#EDE0FF' : '#7B4DBE',
+          color: currentPhotoPath ? '#7B4DBE' : '#F8F4FF',
         }}
       >
         {currentPhotoPath ? '📷 오늘 체중 사진 보기' : '📷 오늘 체중 기록하기'}
@@ -98,15 +98,15 @@ export default function DailyLogButton({ challengeId, userId, todayWeight, today
         >
           <div
             className="w-full max-w-[430px] rounded-t-3xl px-6 pt-5 pb-10 flex flex-col gap-5"
-            style={{ backgroundColor: '#FFFFFF' }}
+            style={{ backgroundColor: '#F8F4FF' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-10 h-1 rounded-full mx-auto" style={{ backgroundColor: '#EBEBF5' }} />
-            <h2 className="text-base font-bold" style={{ color: '#1A1A2E' }}>오늘 체중 기록</h2>
+            <div className="w-10 h-1 rounded-full mx-auto" style={{ backgroundColor: '#D4C0F0' }} />
+            <h2 className="text-base font-bold" style={{ color: '#1A0A3D' }}>오늘 체중 기록</h2>
 
             {todayWeight === null && (
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold" style={{ color: '#9898A6' }}>오늘 체중</label>
+                <label className="text-xs font-semibold" style={{ color: '#A67FD4' }}>오늘 체중</label>
                 <div className="relative">
                   <input
                     type="number"
@@ -115,9 +115,9 @@ export default function DailyLogButton({ challengeId, userId, todayWeight, today
                     value={uploadWeight}
                     onChange={(e) => setUploadWeight(e.target.value)}
                     className="w-full h-12 px-4 pr-10 rounded-xl text-sm outline-none border"
-                    style={{ backgroundColor: '#F7F7FC', color: '#1A1A2E', borderColor: '#EBEBF5' }}
+                    style={{ backgroundColor: '#F8F4FF', color: '#1A0A3D', borderColor: '#D4C0F0' }}
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium" style={{ color: '#9898A6' }}>kg</span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium" style={{ color: '#A67FD4' }}>kg</span>
                 </div>
               </div>
             )}
@@ -126,8 +126,8 @@ export default function DailyLogButton({ challengeId, userId, todayWeight, today
               <button
                 type="button"
                 onClick={() => photoFileInputRef.current?.click()}
-                className="h-11 px-4 rounded-xl text-sm font-semibold border transition-opacity active:opacity-70"
-                style={{ backgroundColor: '#F7F7FC', color: '#1A1A2E', borderColor: '#EBEBF5' }}
+                className="h-11 px-4 rounded-xl text-sm font-semibold transition-opacity active:opacity-70"
+                style={{ backgroundColor: '#EDE0FF', color: '#4A2B8A' }}
               >
                 📷 사진 선택
               </button>
@@ -150,7 +150,7 @@ export default function DailyLogButton({ challengeId, userId, todayWeight, today
               onClick={handlePhotoUploadSubmit}
               disabled={uploading}
               className="w-full h-13 rounded-xl font-bold text-sm transition-opacity disabled:opacity-50"
-              style={{ backgroundColor: '#7B6EF6', color: '#FFFFFF' }}
+              style={{ backgroundColor: '#7B4DBE', color: '#F8F4FF' }}
             >
               {uploading ? '업로드 중...' : '기록 저장'}
             </button>
@@ -167,12 +167,12 @@ export default function DailyLogButton({ challengeId, userId, todayWeight, today
         >
           <div
             className="w-full max-w-[430px] rounded-t-3xl flex flex-col"
-            style={{ backgroundColor: '#FFFFFF', maxHeight: '85dvh' }}
+            style={{ backgroundColor: '#F8F4FF', maxHeight: '85dvh' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-6 pt-5 pb-3 shrink-0">
-              <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ backgroundColor: '#EBEBF5' }} />
-              <h2 className="text-base font-bold" style={{ color: '#1A1A2E' }}>오늘 체중 사진</h2>
+              <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ backgroundColor: '#D4C0F0' }} />
+              <h2 className="text-base font-bold" style={{ color: '#1A0A3D' }}>오늘 체중 사진</h2>
             </div>
             <div className="overflow-y-auto px-6">
               <div className="w-full rounded-2xl overflow-hidden">
@@ -183,7 +183,7 @@ export default function DailyLogButton({ challengeId, userId, todayWeight, today
               <button
                 onClick={() => setPhotoViewOpen(false)}
                 className="w-full h-12 rounded-xl font-bold text-sm"
-                style={{ backgroundColor: '#F7F7FC', color: '#1A1A2E' }}
+                style={{ backgroundColor: '#F8F4FF', color: '#1A0A3D' }}
               >닫기</button>
             </div>
           </div>

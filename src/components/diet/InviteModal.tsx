@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
@@ -22,8 +22,8 @@ export default function InviteModal({ inviteCode }: { inviteCode: string }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="w-full h-14 rounded-2xl font-bold text-sm border-2 transition-opacity active:opacity-70"
-        style={{ borderColor: '#7B6EF6', color: '#7B6EF6', backgroundColor: 'transparent' }}
+        className="w-full h-14 rounded-2xl font-bold text-sm transition-opacity active:opacity-70"
+        style={{ backgroundColor: '#C4A0E8', color: '#1A0A3D' }}
       >
         ⚔️ 적들 초대하기
       </button>
@@ -36,41 +36,41 @@ export default function InviteModal({ inviteCode }: { inviteCode: string }) {
         >
           <div
             className="w-full max-w-[430px] rounded-t-3xl px-6 pt-6 pb-10 flex flex-col items-center gap-6"
-            style={{ backgroundColor: '#FFFFFF' }}
+            style={{ backgroundColor: '#F8F4FF' }}
             onClick={e => e.stopPropagation()}
           >
-            <div className="w-10 h-1 rounded-full" style={{ backgroundColor: '#EBEBF5' }} />
+            <div className="w-10 h-1 rounded-full" style={{ backgroundColor: '#D4C0F0' }} />
 
-            <h2 className="text-lg font-bold" style={{ color: '#1A1A2E' }}>⚔️ 적들 초대하기</h2>
+            <h2 className="text-lg font-bold" style={{ color: '#1A0A3D' }}>⚔️ 적들 초대하기</h2>
 
             {/* QR 코드 */}
             {joinUrl && (
-              <div className="p-4 rounded-2xl" style={{ backgroundColor: '#F7F7FC' }}>
+              <div className="p-4 rounded-2xl" style={{ backgroundColor: '#F8F4FF' }}>
                 <QRCode value={joinUrl} size={160} />
               </div>
             )}
 
             {/* 시크릿 코드 */}
             <div className="w-full flex flex-col items-center gap-3">
-              <p className="text-xs font-medium" style={{ color: '#9898A6' }}>시크릿 코드</p>
+              <p className="text-xs font-medium" style={{ color: '#A67FD4' }}>시크릿 코드</p>
               <div
                 className="w-full py-3 px-4 rounded-xl flex items-center justify-center"
-                style={{ backgroundColor: '#F7F7FC', border: '1px solid #EBEBF5' }}
+                style={{ backgroundColor: '#EDE0FF' }}
               >
-                <span className="text-xl font-bold" style={{ color: '#7B6EF6', letterSpacing: '0.15em' }}>
+                <span className="text-xl font-bold" style={{ color: '#7B4DBE', letterSpacing: '0.15em' }}>
                   {inviteCode}
                 </span>
               </div>
               <button
                 onClick={copyCode}
                 className="h-11 px-8 rounded-xl text-sm font-semibold transition-opacity active:opacity-70"
-                style={{ backgroundColor: copied ? '#EDEAFF' : '#7B6EF6', color: copied ? '#7B6EF6' : '#FFFFFF' }}
+                style={{ backgroundColor: copied ? '#EDE0FF' : '#7B4DBE', color: copied ? '#7B4DBE' : '#F8F4FF' }}
               >
                 {copied ? '✓ 복사됨!' : '코드 복사'}
               </button>
             </div>
 
-            <button onClick={() => setOpen(false)} className="text-sm font-medium" style={{ color: '#9898A6' }}>
+            <button onClick={() => setOpen(false)} className="text-sm font-medium" style={{ color: '#A67FD4' }}>
               닫기
             </button>
           </div>

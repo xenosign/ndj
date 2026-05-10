@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import ScrollableArea from '@/components/layout/ScrollableArea';
 
@@ -104,27 +104,27 @@ export default function DietEditPage() {
 
   if (loading) {
     return (
-      <main className="flex flex-1 flex-col items-center justify-center" style={{ backgroundColor: '#2C1A0E' }}>
-        <p className="text-sm" style={{ color: '#E8D5B0' }}>불러오는 중...</p>
+      <main className="flex flex-1 flex-col items-center justify-center" style={{ backgroundColor: '#1A0A3D' }}>
+        <p className="text-sm" style={{ color: '#D4C0F0' }}>불러오는 중...</p>
       </main>
     );
   }
 
   return (
-    <main className="flex flex-1 flex-col min-h-0" style={{ backgroundColor: '#F4E6C6' }}>
+    <main className="flex flex-1 flex-col min-h-0" style={{ backgroundColor: '#EDE0FF' }}>
       <header
         className="flex items-center gap-3 px-5 py-4 shrink-0"
-        style={{ backgroundColor: '#2C1A0E' }}
+        style={{ backgroundColor: '#1A0A3D' }}
       >
         <button
           onClick={() => router.back()}
           className="text-xl w-8"
-          style={{ color: '#F4E6C6' }}
+          style={{ color: '#EDE0FF' }}
           aria-label="뒤로가기"
         >
           ←
         </button>
-        <h1 className="text-lg font-bold" style={{ color: '#F2C14E' }}>
+        <h1 className="text-lg font-bold" style={{ color: '#A67FD4' }}>
           다이어트 수정
         </h1>
       </header>
@@ -139,7 +139,7 @@ export default function DietEditPage() {
             value={form.title}
             onChange={e => setField('title', e.target.value)}
             className="w-full h-12 px-4 rounded-xl text-sm outline-none"
-            style={{ backgroundColor: '#FAFAF7', color: '#2C1A0E' }}
+            style={{ backgroundColor: '#F8F4FF', color: '#1A0A3D' }}
           />
         </Field>
 
@@ -149,7 +149,7 @@ export default function DietEditPage() {
               type="button"
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center justify-center gap-2 h-12 px-4 rounded-xl text-sm font-semibold shrink-0 transition-opacity hover:opacity-85 active:opacity-70"
-              style={{ backgroundColor: '#C47B3A', color: '#FAFAF7' }}
+              style={{ backgroundColor: '#7B4DBE', color: '#F8F4FF' }}
             >
               📷 사진 업로드
             </button>
@@ -183,9 +183,9 @@ export default function DietEditPage() {
               value={form.targetWeight}
               onChange={e => setField('targetWeight', e.target.value)}
               className="w-full h-12 px-4 pr-10 rounded-xl text-sm outline-none"
-              style={{ backgroundColor: '#FAFAF7', color: '#2C1A0E' }}
+              style={{ backgroundColor: '#F8F4FF', color: '#1A0A3D' }}
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium" style={{ color: '#7B4A2D' }}>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium" style={{ color: '#4A2B8A' }}>
               kg
             </span>
           </div>
@@ -197,7 +197,7 @@ export default function DietEditPage() {
             value={form.targetDate}
             onChange={e => setField('targetDate', e.target.value)}
             className="w-full h-12 px-4 rounded-xl text-sm outline-none"
-            style={{ backgroundColor: '#FAFAF7', color: '#2C1A0E' }}
+            style={{ backgroundColor: '#F8F4FF', color: '#1A0A3D' }}
           />
         </Field>
 
@@ -209,16 +209,16 @@ export default function DietEditPage() {
               value={form.deposit}
               onChange={e => setField('deposit', e.target.value)}
               className="w-full h-12 px-4 pr-10 rounded-xl text-sm outline-none"
-              style={{ backgroundColor: '#FAFAF7', color: '#2C1A0E' }}
+              style={{ backgroundColor: '#F8F4FF', color: '#1A0A3D' }}
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium" style={{ color: '#7B4A2D' }}>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium" style={{ color: '#4A2B8A' }}>
               원
             </span>
           </div>
         </Field>
 
         {error && (
-          <p className="text-sm font-medium text-center" style={{ color: '#C47B3A' }}>
+          <p className="text-sm font-medium text-center" style={{ color: '#7B4DBE' }}>
             {error}
           </p>
         )}
@@ -228,7 +228,7 @@ export default function DietEditPage() {
           onClick={handleSubmit}
           disabled={submitting}
           className="w-full h-14 rounded-xl font-bold text-base mt-2 transition-opacity hover:opacity-85 active:opacity-70 disabled:opacity-50"
-          style={{ backgroundColor: '#2C1A0E', color: '#F2C14E' }}
+          style={{ backgroundColor: '#1A0A3D', color: '#A67FD4' }}
         >
           {submitting ? '저장 중...' : '수정 완료'}
         </button>
@@ -241,7 +241,7 @@ export default function DietEditPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-sm font-semibold" style={{ color: '#7B4A2D' }}>
+      <label className="text-sm font-semibold" style={{ color: '#4A2B8A' }}>
         {label}
       </label>
       {children}

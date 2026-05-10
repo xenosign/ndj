@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -100,11 +100,14 @@ export default function NotificationBell() {
         style={{ top: 14, right: 16 }}
         aria-label="알림"
       >
-        <span className="text-2xl">🔔</span>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A67FD4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
         {unreadCount > 0 && (
           <span
             className="absolute -top-1 -right-1 min-w-[16px] h-4 rounded-full text-[10px] font-bold flex items-center justify-center px-1"
-            style={{ backgroundColor: "#7B6EF6", color: "#FFFFFF" }}
+            style={{ backgroundColor: "#7B4DBE", color: "#F8F4FF" }}
           >
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
@@ -127,27 +130,27 @@ export default function NotificationBell() {
             top: 56,
             width: "calc(100% - 24px)",
             maxHeight: "65dvh",
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #EBEBF5",
-            boxShadow: "0 8px 32px rgba(123,110,246,0.12)",
+            backgroundColor: "#F8F4FF",
+            border: "1px solid #D4C0F0",
+            boxShadow: "0 8px 32px rgba(123,77,190,0.32)",
           }}
         >
           {/* 헤더 */}
           <div
             className="px-4 py-3 shrink-0 border-b"
-            style={{ borderColor: "#EBEBF5" }}
+            style={{ borderColor: "#D4C0F0" }}
           >
-            <p className="text-sm font-bold" style={{ color: "#1A1A2E" }}>알림</p>
+            <p className="text-sm font-bold" style={{ color: "#1A0A3D" }}>알림</p>
           </div>
 
           {/* 목록 */}
           <div className="overflow-y-auto flex flex-col">
             {loading ? (
-              <p className="text-sm text-center py-8" style={{ color: "#9898A6" }}>불러오는 중...</p>
+              <p className="text-sm text-center py-8" style={{ color: "#A67FD4" }}>불러오는 중...</p>
             ) : notifications.length === 0 ? (
               <div className="flex flex-col items-center gap-2 py-10">
                 <span className="text-3xl">🔔</span>
-                <p className="text-sm" style={{ color: "#9898A6" }}>아직 알림이 없습니다.</p>
+                <p className="text-sm" style={{ color: "#A67FD4" }}>아직 알림이 없습니다.</p>
               </div>
             ) : (
               notifications.map((n) => (
@@ -156,18 +159,18 @@ export default function NotificationBell() {
                   onClick={() => handleNotificationClick(n.url)}
                   className="flex items-start gap-3 px-4 py-3 text-left w-full transition-opacity active:opacity-70 border-b"
                   style={{
-                    backgroundColor: n.is_read ? "transparent" : "#F5F3FF",
-                    borderColor: "#EBEBF5",
+                    backgroundColor: n.is_read ? "transparent" : "#EDE0FF",
+                    borderColor: "#D4C0F0",
                   }}
                 >
                   <div
                     className="shrink-0 w-2 h-2 rounded-full mt-1.5"
-                    style={{ backgroundColor: n.is_read ? "transparent" : "#7B6EF6" }}
+                    style={{ backgroundColor: n.is_read ? "transparent" : "#7B4DBE" }}
                   />
                   <div className="flex flex-col gap-0.5 min-w-0">
-                    <p className="text-xs font-bold" style={{ color: "#1A1A2E" }}>{n.title}</p>
-                    <p className="text-xs leading-snug" style={{ color: "#9898A6" }}>{n.body}</p>
-                    <p className="text-xs mt-0.5" style={{ color: "#BEBECE" }}>{formatDate(n.created_at)}</p>
+                    <p className="text-xs font-bold" style={{ color: "#1A0A3D" }}>{n.title}</p>
+                    <p className="text-xs leading-snug" style={{ color: "#A67FD4" }}>{n.body}</p>
+                    <p className="text-xs mt-0.5" style={{ color: "#C4A0E8" }}>{formatDate(n.created_at)}</p>
                   </div>
                 </button>
               ))

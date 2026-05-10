@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -59,7 +59,7 @@ export default function BottomNav() {
   return (
     <nav
       className="flex items-center border-t"
-      style={{ backgroundColor: '#F4E6C6', borderColor: '#C47B3A' }}
+      style={{ backgroundColor: '#EDE0FF', borderColor: '#7B4DBE' }}
     >
       {NAV_ITEMS.map(({ href, label, icon }) => {
         const isActive = pathname === href || (href !== '/home' && pathname.startsWith(href));
@@ -70,14 +70,14 @@ export default function BottomNav() {
             key={href}
             href={href}
             className="flex flex-1 flex-col items-center justify-center gap-1 py-3 transition-opacity active:opacity-60"
-            style={{ color: isActive ? '#C47B3A' : '#2C1A0E' }}
+            style={{ color: isActive ? '#7B4DBE' : '#1A0A3D' }}
           >
             <div className="relative">
               <span className="text-xl">{icon}</span>
               {showBadge && (
                 <span
                   className="absolute -top-1 -right-2 min-w-[16px] h-4 rounded-full text-[10px] font-bold flex items-center justify-center px-1"
-                  style={{ backgroundColor: '#F5A58A', color: '#2C1A0E' }}
+                  style={{ backgroundColor: '#C4A0E8', color: '#1A0A3D' }}
                 >
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>

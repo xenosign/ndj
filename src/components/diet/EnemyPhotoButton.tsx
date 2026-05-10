@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
@@ -43,8 +43,8 @@ export default function EnemyPhotoButton({ hasPhoto, signedUrl, challengeId, cha
         onClick={requested ? undefined : handleRequest}
         className="w-full h-11 rounded-xl text-sm font-semibold transition-opacity active:opacity-70"
         style={{
-          backgroundColor: requested ? '#F5F5FA' : '#EDEAFF',
-          color: requested ? '#9898A6' : '#7B6EF6',
+          backgroundColor: requested ? '#F8F4FF' : '#EDE0FF',
+          color: requested ? '#A67FD4' : '#7B4DBE',
         }}
       >
         {requested ? '📣 사진 요청 완료' : '📣 체중 사진 요청하기'}
@@ -57,7 +57,7 @@ export default function EnemyPhotoButton({ hasPhoto, signedUrl, challengeId, cha
       <button
         onClick={() => setViewOpen(true)}
         className="w-full h-11 rounded-xl text-sm font-semibold active:opacity-70"
-        style={{ backgroundColor: '#EDEAFF', color: '#7B6EF6' }}
+        style={{ backgroundColor: '#EDE0FF', color: '#7B4DBE' }}
       >
         📷 오늘 체중 사진 보기
       </button>
@@ -70,12 +70,12 @@ export default function EnemyPhotoButton({ hasPhoto, signedUrl, challengeId, cha
         >
           <div
             className="w-full max-w-[430px] rounded-t-3xl flex flex-col"
-            style={{ backgroundColor: '#FFFFFF', maxHeight: '85dvh' }}
+            style={{ backgroundColor: '#F8F4FF', maxHeight: '85dvh' }}
             onClick={e => e.stopPropagation()}
           >
             <div className="px-6 pt-5 pb-3 shrink-0">
-              <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ backgroundColor: '#EBEBF5' }} />
-              <h2 className="text-base font-bold" style={{ color: '#1A1A2E' }}>적의 오늘 체중 사진</h2>
+              <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ backgroundColor: '#D4C0F0' }} />
+              <h2 className="text-base font-bold" style={{ color: '#1A0A3D' }}>적의 오늘 체중 사진</h2>
             </div>
             <div className="overflow-y-auto px-6">
               <div className="w-full rounded-2xl overflow-hidden">
@@ -86,7 +86,7 @@ export default function EnemyPhotoButton({ hasPhoto, signedUrl, challengeId, cha
               <button
                 onClick={() => setViewOpen(false)}
                 className="w-full h-12 rounded-xl font-bold text-sm"
-                style={{ backgroundColor: '#F7F7FC', color: '#1A1A2E' }}
+                style={{ backgroundColor: '#F8F4FF', color: '#1A0A3D' }}
               >
                 닫기
               </button>

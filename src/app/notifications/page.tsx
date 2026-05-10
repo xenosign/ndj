@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import TopHeader from "@/components/layout/TopHeader";
 import ScrollableArea from "@/components/layout/ScrollableArea";
@@ -24,7 +24,7 @@ export default async function NotificationsPage() {
     .eq("is_read", false);
 
   return (
-    <main className="flex flex-1 flex-col" style={{ backgroundColor: "#2C1A0E" }}>
+    <main className="flex flex-1 flex-col" style={{ backgroundColor: "#1A0A3D" }}>
       <TopHeader title="알림" />
       <ScrollableArea>
         <NotificationList notifications={notifications ?? []} />

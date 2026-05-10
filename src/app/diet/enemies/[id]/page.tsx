@@ -1,4 +1,4 @@
-import ScrollableArea from '@/components/layout/ScrollableArea';
+﻿import ScrollableArea from '@/components/layout/ScrollableArea';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import TopHeader from '@/components/layout/TopHeader';
@@ -96,7 +96,7 @@ export default async function EnemyDietDetailPage({
     : 0;
 
   return (
-    <main className="flex flex-1 flex-col" style={{ backgroundColor: '#F7F7FC' }}>
+    <main className="flex flex-1 flex-col" style={{ backgroundColor: '#F8F4FF' }}>
       <TopHeader title={ownerProfile?.nickname ?? '적의 다이어트'} backHref="/diet/enemies" />
 
       <ScrollableArea>
@@ -105,19 +105,19 @@ export default async function EnemyDietDetailPage({
           {/* 챌린지 타이틀 카드 */}
           <div
             className="rounded-2xl px-5 py-4 flex flex-col gap-3"
-            style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 12px rgba(123,110,246,0.08)' }}
+            style={{ backgroundColor: '#F8F4FF', boxShadow: '0 4px 20px rgba(123,77,190,0.28)' }}
           >
-            <p className="text-base font-bold" style={{ color: '#1A1A2E' }}>{challenge.title as string}</p>
+            <p className="text-base font-bold" style={{ color: '#1A0A3D' }}>{challenge.title as string}</p>
             <div className="flex items-center gap-2">
               <span
                 className="text-xs font-semibold px-3 py-1 rounded-full"
-                style={{ backgroundColor: '#EDEAFF', color: '#7B6EF6' }}
+                style={{ backgroundColor: '#EDE0FF', color: '#7B4DBE' }}
               >
                 D-{daysLeft}일
               </span>
               <span
                 className="text-xs font-semibold px-3 py-1 rounded-full"
-                style={{ backgroundColor: '#F5F5FA', color: '#9898A6' }}
+                style={{ backgroundColor: '#F8F4FF', color: '#A67FD4' }}
               >
                 💰 {(challenge.deposit as number).toLocaleString()}원
               </span>
@@ -127,19 +127,19 @@ export default async function EnemyDietDetailPage({
           {/* 체중 현황 카드 */}
           <div
             className="rounded-2xl px-5 py-5 flex flex-col gap-4"
-            style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 12px rgba(123,110,246,0.08)' }}
+            style={{ backgroundColor: '#F8F4FF', boxShadow: '0 4px 20px rgba(123,77,190,0.28)' }}
           >
             <div className="flex items-end justify-between">
               <div>
-                <p className="text-xs font-medium mb-1" style={{ color: '#9898A6' }}>현재 체중</p>
-                <p className="font-extrabold leading-none" style={{ color: '#1A1A2E', fontSize: '48px' }}>
+                <p className="text-xs font-medium mb-1" style={{ color: '#A67FD4' }}>현재 체중</p>
+                <p className="font-extrabold leading-none" style={{ color: '#1A0A3D', fontSize: '48px' }}>
                   {currentWeight}
-                  <span className="text-lg font-semibold ml-1" style={{ color: '#9898A6' }}>kg</span>
+                  <span className="text-lg font-semibold ml-1" style={{ color: '#A67FD4' }}>kg</span>
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-xs font-medium mb-1" style={{ color: '#9898A6' }}>목표까지</p>
-                <p className="text-2xl font-bold" style={{ color: diff <= 0 ? '#4CAF50' : '#7B6EF6' }}>
+                <p className="text-xs font-medium mb-1" style={{ color: '#A67FD4' }}>목표까지</p>
+                <p className="text-2xl font-bold" style={{ color: diff <= 0 ? '#4CAF50' : '#7B4DBE' }}>
                   {diff > 0 ? `${diff}kg` : `${Math.abs(diff)}kg ✓`}
                 </p>
               </div>
@@ -147,14 +147,14 @@ export default async function EnemyDietDetailPage({
 
             <div>
               <div className="flex justify-between mb-1.5">
-                <span className="text-xs" style={{ color: '#9898A6' }}>시작 {startWeight}kg</span>
-                <span className="text-xs font-semibold" style={{ color: '#7B6EF6' }}>{progress}%</span>
-                <span className="text-xs" style={{ color: '#9898A6' }}>목표 {targetWeight}kg</span>
+                <span className="text-xs" style={{ color: '#A67FD4' }}>시작 {startWeight}kg</span>
+                <span className="text-xs font-semibold" style={{ color: '#7B4DBE' }}>{progress}%</span>
+                <span className="text-xs" style={{ color: '#A67FD4' }}>목표 {targetWeight}kg</span>
               </div>
-              <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#EDEAFF' }}>
+              <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#EDE0FF' }}>
                 <div
                   className="h-full rounded-full"
-                  style={{ width: `${progress}%`, backgroundColor: '#7B6EF6' }}
+                  style={{ width: `${progress}%`, backgroundColor: '#7B4DBE' }}
                 />
               </div>
             </div>

@@ -9,11 +9,11 @@
 
 ## Using these colors
 
-dark: '#2C1A0E',
-brown: '#7B4A2D',
-golden: '#C47B3A',
-gold: '#F2C14E',
-pink: '#F5A58A',
-cream: '#F4E6C6',
-sand: '#E8D5B0',
-white: '#FAFAF7',
+dark: '#1A0A3D',
+brown: '#4A2B8A',
+golden: '#7B4DBE',
+gold: '#A67FD4',
+pink: '#C4A0E8',
+cream: '#EDE0FF',
+sand: '#D4C0F0',
+white: '#F8F4FF',

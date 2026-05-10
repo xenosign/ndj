@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -42,13 +42,13 @@ export default function JoinButton({ challengeId, challengeOwnerId }: { challeng
   return (
     <div className="w-full flex flex-col gap-3">
       {error && (
-        <p className="text-sm text-center" style={{ color: '#F5A58A' }}>{error}</p>
+        <p className="text-sm text-center" style={{ color: '#C4A0E8' }}>{error}</p>
       )}
       <button
         onClick={handleJoin}
         disabled={loading}
         className="w-full h-14 rounded-xl font-bold text-base transition-opacity hover:opacity-85 active:opacity-70 disabled:opacity-50"
-        style={{ backgroundColor: '#F5A58A', color: '#2C1A0E' }}
+        style={{ backgroundColor: '#C4A0E8', color: '#1A0A3D' }}
       >
         {loading ? '참여 중...' : '⚔️ 적으로 참여하기'}
       </button>

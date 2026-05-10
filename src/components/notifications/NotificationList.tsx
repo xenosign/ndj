@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 
@@ -27,7 +27,7 @@ export default function NotificationList({ notifications }: { notifications: Not
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 py-20">
         <span className="text-4xl">🔔</span>
-        <p className="text-sm font-medium" style={{ color: "#E8D5B0" }}>
+        <p className="text-sm font-medium" style={{ color: "#D4C0F0" }}>
           아직 알림이 없습니다.
         </p>
       </div>
@@ -41,22 +41,22 @@ export default function NotificationList({ notifications }: { notifications: Not
           <div
             className="flex items-start gap-3 rounded-2xl px-4 py-4"
             style={{
-              backgroundColor: n.is_read ? "#2C1A0E" : "#3D2510",
-              border: `1px solid ${n.is_read ? "#3D2510" : "#7B4A2D"}`,
+              backgroundColor: n.is_read ? "#1A0A3D" : "#2A1560",
+              border: `1px solid ${n.is_read ? "#2A1560" : "#4A2B8A"}`,
             }}
           >
             <div
               className="shrink-0 w-2 h-2 rounded-full mt-2"
-              style={{ backgroundColor: n.is_read ? "transparent" : "#F2C14E" }}
+              style={{ backgroundColor: n.is_read ? "transparent" : "#A67FD4" }}
             />
             <div className="flex flex-col gap-1 min-w-0">
-              <p className="text-sm font-bold" style={{ color: "#F2C14E" }}>
+              <p className="text-sm font-bold" style={{ color: "#A67FD4" }}>
                 {n.title}
               </p>
-              <p className="text-xs leading-snug" style={{ color: "#E8D5B0" }}>
+              <p className="text-xs leading-snug" style={{ color: "#D4C0F0" }}>
                 {n.body}
               </p>
-              <p className="text-xs mt-1" style={{ color: "#7B4A2D" }}>
+              <p className="text-xs mt-1" style={{ color: "#4A2B8A" }}>
                 {formatDate(n.created_at)}
               </p>
             </div>

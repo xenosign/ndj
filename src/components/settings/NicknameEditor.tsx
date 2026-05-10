@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
@@ -36,9 +36,9 @@ export default function NicknameEditor({ initialNickname }: { initialNickname: s
   return (
     <div
       className="rounded-2xl px-5 py-4 flex flex-col gap-3"
-      style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 12px rgba(123,110,246,0.08)' }}
+      style={{ backgroundColor: '#F8F4FF', boxShadow: '0 4px 20px rgba(123,77,190,0.28)' }}
     >
-      <h2 className="text-sm font-bold" style={{ color: '#9898A6' }}>닉네임</h2>
+      <h2 className="text-sm font-bold" style={{ color: '#A67FD4' }}>닉네임</h2>
 
       {editing ? (
         <>
@@ -49,14 +49,14 @@ export default function NicknameEditor({ initialNickname }: { initialNickname: s
             maxLength={20}
             placeholder="닉네임 입력"
             className="w-full px-4 h-12 rounded-xl text-sm outline-none border"
-            style={{ backgroundColor: '#F7F7FC', color: '#1A1A2E', borderColor: '#EBEBF5' }}
+            style={{ backgroundColor: '#F8F4FF', color: '#1A0A3D', borderColor: '#D4C0F0' }}
           />
           {error && <p className="text-xs px-1" style={{ color: '#F44336' }}>{error}</p>}
           <div className="flex gap-3">
             <button
               onClick={() => { setEditing(false); setInput(nickname); setError(null); }}
               className="flex-1 h-11 rounded-xl text-sm font-semibold active:opacity-70"
-              style={{ backgroundColor: '#F7F7FC', color: '#9898A6' }}
+              style={{ backgroundColor: '#F8F4FF', color: '#A67FD4' }}
             >
               취소
             </button>
@@ -64,7 +64,7 @@ export default function NicknameEditor({ initialNickname }: { initialNickname: s
               onClick={handleSave}
               disabled={saving}
               className="flex-1 h-11 rounded-xl text-sm font-bold active:opacity-70 disabled:opacity-50"
-              style={{ backgroundColor: '#7B6EF6', color: '#FFFFFF' }}
+              style={{ backgroundColor: '#7B4DBE', color: '#F8F4FF' }}
             >
               {saving ? '저장 중...' : '저장'}
             </button>
@@ -74,12 +74,12 @@ export default function NicknameEditor({ initialNickname }: { initialNickname: s
         <button
           onClick={() => { setInput(nickname); setEditing(true); }}
           className="w-full rounded-xl px-4 py-3 flex items-center justify-between active:opacity-70"
-          style={{ backgroundColor: '#F7F7FC' }}
+          style={{ backgroundColor: '#F8F4FF' }}
         >
-          <span className="text-base font-semibold" style={{ color: nickname ? '#1A1A2E' : '#BEBECE' }}>
+          <span className="text-base font-semibold" style={{ color: nickname ? '#1A0A3D' : '#C4A0E8' }}>
             {nickname || '닉네임 없음'}
           </span>
-          <span className="text-xs font-semibold" style={{ color: '#7B6EF6' }}>수정</span>
+          <span className="text-xs font-semibold" style={{ color: '#7B4DBE' }}>수정</span>
         </button>
       )}
     </div>
