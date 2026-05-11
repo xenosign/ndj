@@ -1,6 +1,7 @@
 ﻿import Image from 'next/image';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import TopHeader from '@/components/layout/TopHeader';
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -23,6 +24,7 @@ export default async function HomePage() {
       className="flex flex-1 flex-col"
       style={{ backgroundColor: '#F8F4FF' }}
     >
+      <TopHeader showBack={false} />
       <div className="flex flex-1 flex-col items-center justify-center gap-5 px-6 py-10">
         {/* 로고 */}
         <div className="flex flex-col items-center gap-4 mb-2">

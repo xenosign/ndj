@@ -1,14 +1,15 @@
-﻿'use client';
+'use client';
 
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface TopHeaderProps {
-  title: string;
+  title?: string;
   showBack?: boolean;
   backHref?: string;
 }
 
-export default function TopHeader({ title, showBack = true, backHref }: TopHeaderProps) {
+export default function TopHeader({ showBack = true, backHref }: TopHeaderProps) {
   const router = useRouter();
 
   function handleBack() {
@@ -33,9 +34,16 @@ export default function TopHeader({ title, showBack = true, backHref }: TopHeade
           </svg>
         </button>
       )}
-      <h1 className="text-base font-bold" style={{ color: '#1A0A3D' }}>
-        {title}
-      </h1>
+      <button onClick={() => router.push('/home')} className="active:opacity-70">
+        <Image
+          src="/WEGOBE-logo.png"
+          alt="WEGOBE"
+          width={120}
+          height={32}
+          style={{ objectFit: 'contain' }}
+          priority
+        />
+      </button>
     </header>
   );
 }

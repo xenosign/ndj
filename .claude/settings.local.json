@@ -14,7 +14,9 @@
       "Bash(Format-Table FullName)",
       "PowerShell(\\(Get-Item \"D:\\\\git\\\\ndj\\\\src\\\\components\\\\layout\\\\BottomNav.tsx\"\\).LastWriteTime = Get-Date; Write-Output \"touched\")",
       "Bash(Get-ChildItem -Path \"D:\\\\git\\\\ndj\\\\src\" -Recurse -Include \"*.tsx\", \"*.ts\")",
-      "Bash(Select-Object -ExpandProperty FullName)"
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "PowerShell(Get-ChildItem -Path \"D:\\\\git\\\\ndj\" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 50 | ForEach-Object { $_.FullName })",
+      "Bash(Get-ChildItem -Recurse -Path \"D:\\\\git\\\\ndj\" -Include \"*auth*\",\"*profile*\",\"*login*\" -Exclude \"node_modules\" -ErrorAction SilentlyContinue)"
     ]
   }
 }

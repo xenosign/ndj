@@ -8,6 +8,12 @@ const nextConfig: NextConfig = {
         hostname: '*.supabase.co',
         pathname: '/storage/v1/object/**',
       },
+      { protocol: 'https', hostname: 'k.kakaocdn.net' },
+      { protocol: 'http', hostname: 'k.kakaocdn.net' },
+      { protocol: 'https', hostname: 'img1.kakaocdn.net' },
+      { protocol: 'http', hostname: 'img1.kakaocdn.net' },
+      { protocol: 'https', hostname: 't1.kakaocdn.net' },
+      { protocol: 'http', hostname: 't1.kakaocdn.net' },
     ],
   },
   async headers() {

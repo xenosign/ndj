@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { useState, useCallback, useRef } from 'react';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { notifyUser } from '@/lib/notify';
 
@@ -9,7 +10,9 @@ interface Comment {
   user_id: string;
   content: string;
   created_at: string;
+  is_anonymous: boolean;
   nickname: string | null;
+  avatarUrl: string | null;
 }
 
 interface Props {
@@ -31,6 +34,7 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
   const dragStartY = useRef<number | null>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
   const [content, setContent] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,29 +44,37 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
 
     const { data } = await supabase
       .from('diet_comments')
-      .select('id, content, created_at, user_id')
+      .select('id, content, created_at, is_anonymous, user_id')
       .eq('challenge_id', challengeId)
       .order('created_at', { ascending: false })
       .limit(50);
 
     if (!data) { setLoading(false); return; }
 
-    const userIds = [...new Set(data.map(c => c.user_id as string))];
-    const { data: profiles } = userIds.length > 0
-      ? await supabase.from('profiles').select('id, nickname').in('id', userIds)
+    const nonAnonIds = [...new Set(
+      data.filter(c => !c.is_anonymous).map(c => c.user_id as string)
+    )];
+    const { data: profiles } = nonAnonIds.length > 0
+      ? await supabase.from('profiles').select('id, nickname, avatar_url').in('id', nonAnonIds)
       : { data: [] };
 
-    const nicknameMap = Object.fromEntries(
-      (profiles ?? []).map(p => [p.id as string, p.nickname as string | null])
+    const profileMap = Object.fromEntries(
+      (profiles ?? []).map(p => [p.id as string, p])
     );
 
-    setComments(data.map(c => ({
-      id: c.id as string,
-      user_id: c.user_id as string,
-      content: c.content as string,
-      created_at: c.created_at as string,
-      nickname: nicknameMap[c.user_id as string] ?? null,
-    })));
+    setComments(data.map(c => {
+      const anon = c.is_anonymous as boolean;
+      const profile = anon ? null : profileMap[c.user_id as string];
+      return {
+        id: c.id as string,
+        user_id: c.user_id as string,
+        content: c.content as string,
+        created_at: c.created_at as string,
+        is_anonymous: anon,
+        nickname: anon ? null : ((profile?.nickname as string | null) ?? null),
+        avatarUrl: anon ? null : ((profile?.avatar_url as string | null) ?? null),
+      };
+    }));
     setLoading(false);
   }, [challengeId]);
 
@@ -85,6 +97,7 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
       challenge_id: challengeId,
       user_id: user.id,
       content: content.trim(),
+      is_anonymous: isAnonymous,
     });
 
     if (insertErr) {
@@ -129,8 +142,8 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
     <>
       <button
         onClick={handleOpen}
-        className="w-full h-14 rounded-2xl font-bold text-sm transition-opacity active:opacity-70"
-        style={{ backgroundColor: '#D4C0F0', color: '#1A0A3D' }}
+        className="w-3/5 mx-auto block text-xs font-bold px-3 py-2 rounded-xl transition-opacity active:opacity-75"
+        style={{ backgroundColor: '#4A2B8A', color: '#F8F4FF' }}
       >
         {buttonLabel}
       </button>
@@ -174,21 +187,37 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
               ) : (
                 comments.map(c => {
                   const isOwner = c.user_id === challengeOwnerId;
+                  const initial = c.nickname?.[0] ?? '?';
                   return (
                     <div
                       key={c.id}
-                      className="flex flex-col gap-1 rounded-xl px-4 py-3"
+                      className="flex items-start gap-3 rounded-xl px-4 py-3"
                       style={{ backgroundColor: isOwner ? '#EDE0FF' : '#F8F4FF' }}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold" style={{ color: isOwner ? '#7B4DBE' : '#1A0A3D' }}>
-                          {c.nickname ?? '익명'}{isOwner && ' 👑'}
-                        </span>
-                        <span className="text-xs" style={{ color: '#C4A0E8' }}>
-                          {formatDate(c.created_at)}
-                        </span>
+                      {/* 아바타 */}
+                      <div
+                        className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 mt-0.5"
+                        style={{ backgroundColor: c.is_anonymous ? '#D4C0F0' : '#EDE0FF' }}
+                      >
+                        {!c.is_anonymous && c.avatarUrl ? (
+                          <Image src={c.avatarUrl} alt={c.nickname ?? ''} width={32} height={32} className="object-cover w-full h-full" />
+                        ) : (
+                          <span style={{ fontSize: 12, fontWeight: 700, color: '#7B4DBE' }}>
+                            {c.is_anonymous ? '?' : initial}
+                          </span>
+                        )}
                       </div>
-                      <p className="text-sm" style={{ color: '#1A0A3D' }}>{c.content}</p>
+                      <div className="flex flex-col gap-1 flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-semibold" style={{ color: isOwner ? '#7B4DBE' : '#1A0A3D' }}>
+                            {c.is_anonymous ? '익명' : (c.nickname ?? '익명')}{isOwner && ' 👑'}
+                          </span>
+                          <span className="text-xs shrink-0" style={{ color: '#C4A0E8' }}>
+                            {formatDate(c.created_at)}
+                          </span>
+                        </div>
+                        <p className="text-sm" style={{ color: '#1A0A3D' }}>{c.content}</p>
+                      </div>
                     </div>
                   );
                 })
@@ -207,6 +236,22 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
                 className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none border"
                 style={{ backgroundColor: '#F8F4FF', color: '#1A0A3D', borderColor: '#D4C0F0' }}
               />
+              <label className="flex items-center gap-2 cursor-pointer select-none w-fit">
+                <div
+                  onClick={() => setIsAnonymous(prev => !prev)}
+                  className="w-10 h-6 rounded-full relative transition-colors"
+                  style={{ backgroundColor: isAnonymous ? '#7B4DBE' : '#D4C0F0' }}
+                >
+                  <div
+                    className="absolute top-1 left-1 w-4 h-4 rounded-full transition-transform duration-200"
+                    style={{
+                      backgroundColor: '#F8F4FF',
+                      transform: isAnonymous ? 'translateX(16px)' : 'translateX(0)',
+                    }}
+                  />
+                </div>
+                <span className="text-xs font-medium" style={{ color: '#4A2B8A' }}>익명</span>
+              </label>
               {error && (
                 <p className="text-xs font-medium" style={{ color: '#F44336' }}>{error}</p>
               )}
