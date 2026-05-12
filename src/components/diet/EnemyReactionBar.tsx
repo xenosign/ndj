@@ -3,16 +3,14 @@
 import { useState } from 'react';
 import Image from 'next/image';
 
-const PLACEHOLDER_REACTIONS = [
-  { emoji: '👍', sentiment: 'good' },
-  { emoji: '🔥', sentiment: 'good' },
-  { emoji: '💪', sentiment: 'good' },
-  { emoji: '😂', sentiment: 'neutral' },
-  { emoji: '🤣', sentiment: 'neutral' },
-  { emoji: '😱', sentiment: 'neutral' },
-  { emoji: '👎', sentiment: 'bad' },
-  { emoji: '😤', sentiment: 'bad' },
-];
+const REACTION_SENTIMENT: Record<string, 'good' | 'neutral' | 'bad'> = {
+  '👍': 'good', '🔥': 'good', '💪': 'good', '❤️': 'good', '🎉': 'good',
+  '😍': 'good', '🤩': 'good', '🙌': 'good', '✨': 'good', '😎': 'good',
+  '😐': 'neutral', '🤔': 'neutral', '😶': 'neutral', '😑': 'neutral', '🙂': 'neutral',
+  '😏': 'neutral', '👀': 'neutral', '🤷': 'neutral', '😮': 'neutral', '💭': 'neutral',
+  '👎': 'bad', '😤': 'bad', '😠': 'bad', '😒': 'bad', '😞': 'bad',
+  '😔': 'bad', '💢': 'bad', '🤦': 'bad', '😩': 'bad', '😫': 'bad',
+};
 
 const SENTIMENT_COLORS: Record<string, string> = {
   good: '#4A2B8A',
@@ -33,16 +31,13 @@ interface Props {
 
 function Avatar({
   participant,
-  index,
 }: {
   participant: Participant;
-  index: number;
 }) {
   const initial = participant.nickname?.[0] ?? '?';
-  const reactionData =
-    PLACEHOLDER_REACTIONS[index % PLACEHOLDER_REACTIONS.length];
-  const emoji = participant.reaction ?? reactionData.emoji;
-  const bgColor = SENTIMENT_COLORS[reactionData.sentiment];
+  const emoji = participant.reaction ?? null;
+  const sentiment = emoji ? (REACTION_SENTIMENT[emoji] ?? 'neutral') : null;
+  const bgColor = sentiment ? SENTIMENT_COLORS[sentiment] : '#B0B0B0';
 
   return (
     <div className="flex flex-col items-center gap-1.5">
@@ -51,7 +46,7 @@ function Avatar({
           className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center shrink-0"
           style={{ backgroundColor: '#EDE0FF' }}
         >
-          {participant.avatarUrl ? (
+          {participant.avatarUrl?.startsWith('http') ? (
             <Image
               src={participant.avatarUrl}
               alt={participant.nickname ?? ''}
@@ -75,7 +70,7 @@ function Avatar({
             boxShadow: '0 1px 4px rgba(0,0,0,0.15)',
           }}
         >
-          {emoji}
+          {emoji ?? <span style={{ fontSize: 13, fontWeight: 700, color: '#F8F4FF' }}>?</span>}
         </div>
       </div>
       <span
@@ -109,8 +104,8 @@ export default function EnemyReactionBar({ participants }: Props) {
     >
       {/* pt-4: 뱃지 -top-1 overflow 공간 확보 */}
       <div className="pt-4 grid grid-cols-4 gap-y-4">
-        {visible.map((p, i) => (
-          <Avatar key={p.id} participant={p} index={i} />
+        {visible.map((p) => (
+          <Avatar key={p.id} participant={p} />
         ))}
       </div>
 

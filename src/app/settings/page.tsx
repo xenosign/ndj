@@ -90,6 +90,17 @@ export default async function SettingsPage() {
             <LogoutButton />
           </div>
 
+          {/* DEV 전용 */}
+          {process.env.NODE_ENV === 'development' && (
+            <Link
+              href="/dev-login"
+              className="w-full h-11 rounded-xl text-sm font-semibold flex items-center justify-center active:opacity-70"
+              style={{ backgroundColor: '#EDE0FF', color: '#A67FD4' }}
+            >
+              🛠 테스트 로그인
+            </Link>
+          )}
+
         </div>
       </ScrollableArea>
     </main>

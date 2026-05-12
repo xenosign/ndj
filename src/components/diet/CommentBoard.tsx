@@ -199,7 +199,7 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
                         className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 mt-0.5"
                         style={{ backgroundColor: c.is_anonymous ? '#D4C0F0' : '#EDE0FF' }}
                       >
-                        {!c.is_anonymous && c.avatarUrl ? (
+                        {!c.is_anonymous && c.avatarUrl?.startsWith('http') ? (
                           <Image src={c.avatarUrl} alt={c.nickname ?? ''} width={32} height={32} className="object-cover w-full h-full" />
                         ) : (
                           <span style={{ fontSize: 12, fontWeight: 700, color: '#7B4DBE' }}>

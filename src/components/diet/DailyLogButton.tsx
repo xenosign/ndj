@@ -15,6 +15,18 @@ interface Props {
 export default function DailyLogButton({ challengeId, userId, todayWeight, todayPhotoPath }: Props) {
   const router = useRouter();
   const photoFileInputRef = useRef<HTMLInputElement>(null);
+  const touchStartY = useRef<number | null>(null);
+
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartY.current = e.touches[0].clientY;
+  }
+  function onTouchEnd(close: () => void) {
+    return (e: React.TouchEvent) => {
+      if (touchStartY.current === null) return;
+      if (e.changedTouches[0].clientY - touchStartY.current > 60) close();
+      touchStartY.current = null;
+    };
+  }
 
   const [photoUploadOpen, setPhotoUploadOpen] = useState(false);
   const [uploadWeight, setUploadWeight] = useState(todayWeight !== null ? String(todayWeight) : '');
@@ -100,8 +112,10 @@ export default function DailyLogButton({ challengeId, userId, todayWeight, today
             className="w-full max-w-[430px] rounded-t-3xl px-6 pt-5 pb-10 flex flex-col gap-5"
             style={{ backgroundColor: '#F8F4FF' }}
             onClick={(e) => e.stopPropagation()}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd(() => setPhotoUploadOpen(false))}
           >
-            <div className="w-10 h-1 rounded-full mx-auto" style={{ backgroundColor: '#D4C0F0' }} />
+            <div onClick={() => setPhotoUploadOpen(false)} className="w-10 h-1 rounded-full mx-auto cursor-pointer" style={{ backgroundColor: '#D4C0F0' }} />
             <h2 className="text-base font-bold" style={{ color: '#1A0A3D' }}>오늘 체중 기록</h2>
 
             {todayWeight === null && (
@@ -169,9 +183,11 @@ export default function DailyLogButton({ challengeId, userId, todayWeight, today
             className="w-full max-w-[430px] rounded-t-3xl flex flex-col"
             style={{ backgroundColor: '#F8F4FF', maxHeight: '85dvh' }}
             onClick={(e) => e.stopPropagation()}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd(() => setPhotoViewOpen(false))}
           >
             <div className="px-6 pt-5 pb-3 shrink-0">
-              <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ backgroundColor: '#D4C0F0' }} />
+              <div onClick={() => setPhotoViewOpen(false)} className="w-10 h-1 rounded-full mx-auto mb-4 cursor-pointer" style={{ backgroundColor: '#D4C0F0' }} />
               <h2 className="text-base font-bold" style={{ color: '#1A0A3D' }}>오늘 체중 사진</h2>
             </div>
             <div className="overflow-y-auto px-6">

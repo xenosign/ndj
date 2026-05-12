@@ -8,6 +8,7 @@ import WeightTrendCard from '@/components/diet/WeightTrendCard';
 import CommentCard from '@/components/diet/CommentCard';
 import EnemyReactionBar from '@/components/diet/EnemyReactionBar';
 import ReactionSummaryCard from '@/components/diet/ReactionSummaryCard';
+import MissionCard from '@/components/diet/MissionCard';
 
 function generateInviteCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -39,6 +40,9 @@ export default async function MyDietPage() {
   }
 
   const today = new Date().toISOString().split('T')[0];
+  const tomorrowDate = new Date();
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const tomorrow = tomorrowDate.toISOString().split('T')[0];
 
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
@@ -59,7 +63,13 @@ export default async function MyDietPage() {
   const todayPhotoPath: string | null =
     latestLog?.logged_date === today ? (latestLog.photo_url as string | null) : null;
 
-  const [{ data: participants }, { data: todayReactions }] = await Promise.all([
+  const [
+    { data: participants },
+    { data: todayReactions },
+    { data: todayMission },
+    { data: tomorrowMission },
+    { data: verifications },
+  ] = await Promise.all([
     supabase
       .from('diet_participants')
       .select('user_id')
@@ -69,7 +79,32 @@ export default async function MyDietPage() {
       .select('user_id, reaction')
       .eq('challenge_id', challenge.id)
       .eq('logged_date', today),
+    supabase
+      .from('diet_missions')
+      .select('id, content, photo_url')
+      .eq('challenge_id', challenge.id)
+      .eq('mission_date', today)
+      .maybeSingle(),
+    supabase
+      .from('diet_missions')
+      .select('id, content')
+      .eq('challenge_id', challenge.id)
+      .eq('mission_date', tomorrow)
+      .maybeSingle(),
+    supabase
+      .from('diet_mission_verifications')
+      .select('id')
+      .eq('challenge_id', challenge.id)
+      .eq('mission_date', today),
   ]);
+
+  let missionPhotoSignedUrl: string | null = null;
+  if (todayMission?.photo_url) {
+    const { data: signedData } = await supabase.storage
+      .from('diet-photos')
+      .createSignedUrl(todayMission.photo_url as string, 3600);
+    missionPhotoSignedUrl = signedData?.signedUrl ?? null;
+  }
 
   // 참여자 프로필 fetch
   const participantIds = (participants ?? []).map(p => p.user_id as string);
@@ -82,9 +117,12 @@ export default async function MyDietPage() {
 
   // 오늘 반응 집계
   const REACTION_SENTIMENT: Record<string, 'good' | 'neutral' | 'bad'> = {
-    '👍': 'good', '🔥': 'good', '💪': 'good',
-    '😂': 'neutral', '🤣': 'neutral', '😱': 'neutral',
-    '👎': 'bad', '😤': 'bad',
+    '👍': 'good', '🔥': 'good', '💪': 'good', '❤️': 'good', '🎉': 'good',
+    '😍': 'good', '🤩': 'good', '🙌': 'good', '✨': 'good', '😎': 'good',
+    '😐': 'neutral', '🤔': 'neutral', '😶': 'neutral', '😑': 'neutral', '🙂': 'neutral',
+    '😏': 'neutral', '👀': 'neutral', '🤷': 'neutral', '😮': 'neutral', '💭': 'neutral',
+    '👎': 'bad', '😤': 'bad', '😠': 'bad', '😒': 'bad', '😞': 'bad',
+    '😔': 'bad', '💢': 'bad', '🤦': 'bad', '😩': 'bad', '😫': 'bad',
   };
   const reactionMap = Object.fromEntries(
     (todayReactions ?? []).map(r => [r.user_id as string, r.reaction as string])
@@ -92,7 +130,7 @@ export default async function MyDietPage() {
   const profileMap = Object.fromEntries(
     (participantProfiles ?? []).map(p => [p.id as string, p])
   );
-  const sentimentParticipants: Record<'good' | 'neutral' | 'bad', { nickname: string | null; avatarUrl: string | null }[]> = {
+  const sentimentParticipants: Record<'good' | 'neutral' | 'bad', { nickname: string | null; avatarUrl: string | null; reaction: string }[]> = {
     good: [], neutral: [], bad: [],
   };
   (todayReactions ?? []).forEach(r => {
@@ -102,6 +140,7 @@ export default async function MyDietPage() {
       sentimentParticipants[sentiment].push({
         nickname: (profile?.nickname as string | null) ?? null,
         avatarUrl: (profile?.avatar_url as string | null) ?? null,
+        reaction: r.reaction as string,
       });
     }
   });
@@ -159,9 +198,22 @@ export default async function MyDietPage() {
           {/* 오늘의 미션 */}
           <div className="flex flex-col gap-2">
             <p className="text-sm font-bold px-1" style={{ color: '#1A0A3D' }}>오늘의 미션</p>
-            <div
-              className="rounded-2xl px-5 py-8"
-              style={{ backgroundColor: '#F8F4FF', boxShadow: '0 4px 20px rgba(123,77,190,0.28)' }}
+            <MissionCard
+              challengeId={challenge.id}
+              userId={user.id}
+              todayMission={todayMission ? {
+                id: todayMission.id as string,
+                content: todayMission.content as string,
+                photo_url: todayMission.photo_url as string | null,
+              } : null}
+              tomorrowMission={tomorrowMission ? {
+                id: tomorrowMission.id as string,
+                content: tomorrowMission.content as string,
+              } : null}
+              todayPhotoSignedUrl={missionPhotoSignedUrl}
+              verificationCount={verifications?.length ?? 0}
+              today={today}
+              tomorrow={tomorrow}
             />
           </div>
 

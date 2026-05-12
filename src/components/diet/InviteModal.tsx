@@ -1,12 +1,13 @@
-﻿'use client';
+'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import QRCode from 'react-qr-code';
 
 export default function InviteModal({ inviteCode }: { inviteCode: string }) {
   const [open, setOpen] = useState(false);
   const [joinUrl, setJoinUrl] = useState('');
   const [copied, setCopied] = useState(false);
+  const touchStartY = useRef<number | null>(null);
 
   useEffect(() => {
     setJoinUrl(`${window.location.origin}/diet/join/${inviteCode}`);
@@ -16,6 +17,17 @@ export default function InviteModal({ inviteCode }: { inviteCode: string }) {
     await navigator.clipboard.writeText(inviteCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartY.current = e.touches[0].clientY;
+  }
+
+  function onTouchEnd(e: React.TouchEvent) {
+    if (touchStartY.current === null) return;
+    const delta = e.changedTouches[0].clientY - touchStartY.current;
+    if (delta > 60) setOpen(false);
+    touchStartY.current = null;
   }
 
   return (
@@ -38,8 +50,15 @@ export default function InviteModal({ inviteCode }: { inviteCode: string }) {
             className="w-full max-w-[430px] rounded-t-3xl px-6 pt-6 pb-10 flex flex-col items-center gap-6"
             style={{ backgroundColor: '#F8F4FF' }}
             onClick={e => e.stopPropagation()}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
           >
-            <div className="w-10 h-1 rounded-full" style={{ backgroundColor: '#D4C0F0' }} />
+            {/* 핸들 — 클릭 또는 아래로 드래그하면 닫힘 */}
+            <div
+              className="w-10 h-1 rounded-full cursor-pointer"
+              style={{ backgroundColor: '#D4C0F0' }}
+              onClick={() => setOpen(false)}
+            />
 
             <h2 className="text-lg font-bold" style={{ color: '#1A0A3D' }}>⚔️ 적들 초대하기</h2>
 
@@ -61,18 +80,23 @@ export default function InviteModal({ inviteCode }: { inviteCode: string }) {
                   {inviteCode}
                 </span>
               </div>
-              <button
-                onClick={copyCode}
-                className="h-11 px-8 rounded-xl text-sm font-semibold transition-opacity active:opacity-70"
-                style={{ backgroundColor: copied ? '#EDE0FF' : '#7B4DBE', color: copied ? '#7B4DBE' : '#F8F4FF' }}
-              >
-                {copied ? '✓ 복사됨!' : '코드 복사'}
-              </button>
+              <div className="w-full flex gap-3">
+                <button
+                  onClick={copyCode}
+                  className="flex-1 h-11 rounded-xl text-sm font-semibold transition-opacity active:opacity-70"
+                  style={{ backgroundColor: copied ? '#EDE0FF' : '#7B4DBE', color: copied ? '#7B4DBE' : '#F8F4FF' }}
+                >
+                  {copied ? '✓ 복사됨!' : '코드 복사'}
+                </button>
+                <button
+                  onClick={() => setOpen(false)}
+                  className="flex-1 h-11 rounded-xl text-sm font-semibold active:opacity-70"
+                  style={{ backgroundColor: '#EDE0FF', color: '#7B4DBE' }}
+                >
+                  닫기
+                </button>
+              </div>
             </div>
-
-            <button onClick={() => setOpen(false)} className="text-sm font-medium" style={{ color: '#A67FD4' }}>
-              닫기
-            </button>
           </div>
         </div>
       )}

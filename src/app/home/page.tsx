@@ -54,11 +54,11 @@ export default async function HomePage() {
             style={{ backgroundColor: '#7B4DBE' }}
           >
             <span className="text-base font-bold" style={{ color: '#F8F4FF' }}>
-              {hasChallenge ? '⚡ 내 다이어트 현황' : '🚀 내 다이어트 시작하기'}
+              {hasChallenge ? '⚖️ 내 다이어트 현황' : '🚀 내 다이어트 시작하기'}
             </span>
             <span className="text-xs font-medium" style={{ color: '#EDE0FF' }}>
               {hasChallenge
-                ? '오늘의 체중을 기록하고 진행 상황을 확인하세요'
+                ? '오늘의 체중 및 미션을 기록하고 진행 상황 및 적들의 반응을 확인하세요'
                 : '목표를 설정하고 다이어트를 시작하세요'}
             </span>
           </Link>
@@ -76,7 +76,7 @@ export default async function HomePage() {
               ⚔️ 적들의 다이어트
             </span>
             <span className="text-xs font-medium" style={{ color: '#A67FD4' }}>
-              참여 중인 챌린지를 확인하고 붐업을 보내세요
+              참여 중인 적들의 챌린지를 확인하고 반응 및 댓글을 남기세요
             </span>
           </Link>
 

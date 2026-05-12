@@ -1,48 +1,54 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
-export default function DietDeleteButton({ challengeId }: { challengeId: string }) {
+export default function LeaveChallengeButton({ challengeId }: { challengeId: string }) {
   const router = useRouter();
   const [confirm, setConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  async function handleDelete() {
+  async function handleLeave() {
     setLoading(true);
     const supabase = createClient();
-    await supabase.from('diet_challenges').delete().eq('id', challengeId);
-    router.push('/home');
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setLoading(false); return; }
+    await supabase
+      .from('diet_participants')
+      .delete()
+      .eq('challenge_id', challengeId)
+      .eq('user_id', user.id);
+    router.push('/diet/enemies');
   }
 
   if (confirm) {
     return (
       <div
-        className="w-full rounded-xl p-4 flex flex-col gap-3"
+        className="rounded-2xl px-5 py-4 flex flex-col gap-3"
         style={{ backgroundColor: '#FFF5F5' }}
       >
         <p className="text-sm font-semibold text-center" style={{ color: '#F44336' }}>
-          정말 삭제하시겠습니까?
+          정말 탈퇴하시겠습니까?
         </p>
         <p className="text-xs text-center" style={{ color: '#A67FD4' }}>
-          삭제 시 모든 기록이 사라지고 복구할 수 없습니다.
+          탈퇴 시 이 챌린지에 남긴 반응과 댓글이 모두 삭제됩니다.
         </p>
         <div className="flex gap-3 mt-1">
           <button
             onClick={() => setConfirm(false)}
             className="flex-1 h-11 rounded-xl text-sm font-semibold active:opacity-70"
-            style={{ backgroundColor: '#F8F4FF', color: '#A67FD4' }}
+            style={{ backgroundColor: '#EDE0FF', color: '#7B4DBE' }}
           >
             취소
           </button>
           <button
-            onClick={handleDelete}
+            onClick={handleLeave}
             disabled={loading}
             className="flex-1 h-11 rounded-xl text-sm font-bold active:opacity-70 disabled:opacity-50"
             style={{ backgroundColor: '#F44336', color: '#F8F4FF' }}
           >
-            {loading ? '삭제 중...' : '삭제'}
+            {loading ? '탈퇴 중...' : '탈퇴'}
           </button>
         </div>
       </div>
@@ -55,7 +61,7 @@ export default function DietDeleteButton({ challengeId }: { challengeId: string 
       className="w-full h-11 rounded-xl text-sm font-semibold active:opacity-70"
       style={{ backgroundColor: '#F44336', color: '#F8F4FF' }}
     >
-      🗑 다이어트 삭제
+      🏳️ 챌린지 탈퇴하기
     </button>
   );
 }

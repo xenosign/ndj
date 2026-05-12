@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-import { useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { notifyUser } from '@/lib/notify';
 
@@ -16,10 +16,20 @@ export default function EnemyPhotoButton({ hasPhoto, signedUrl, challengeId, cha
   const today = new Date().toISOString().split('T')[0];
   const storageKey = `photo-requested:${challengeId}:${today}`;
   const [requested, setRequested] = useState(false);
+  const touchStartY = useRef<number | null>(null);
 
   useEffect(() => {
     setRequested(localStorage.getItem(storageKey) === '1');
   }, [storageKey]);
+
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartY.current = e.touches[0].clientY;
+  }
+  function onTouchEnd(e: React.TouchEvent) {
+    if (touchStartY.current === null) return;
+    if (e.changedTouches[0].clientY - touchStartY.current > 60) setViewOpen(false);
+    touchStartY.current = null;
+  }
 
   async function handleRequest() {
     localStorage.setItem(storageKey, '1');
@@ -41,13 +51,13 @@ export default function EnemyPhotoButton({ hasPhoto, signedUrl, challengeId, cha
     return (
       <button
         onClick={requested ? undefined : handleRequest}
-        className="w-full h-11 rounded-xl text-sm font-semibold transition-opacity active:opacity-70"
+        className="w-full text-xs font-bold px-3 py-2 rounded-xl transition-opacity active:opacity-75"
         style={{
-          backgroundColor: requested ? '#F8F4FF' : '#EDE0FF',
-          color: requested ? '#A67FD4' : '#7B4DBE',
+          backgroundColor: requested ? 'rgba(255,255,255,0.15)' : '#4A2B8A',
+          color: requested ? 'rgba(255,255,255,0.6)' : '#F8F4FF',
         }}
       >
-        {requested ? '📣 사진 요청 완료' : '📣 체중 사진 요청하기'}
+        {requested ? '📢 요청 완료' : '📢 사진 요청'}
       </button>
     );
   }
@@ -56,10 +66,10 @@ export default function EnemyPhotoButton({ hasPhoto, signedUrl, challengeId, cha
     <>
       <button
         onClick={() => setViewOpen(true)}
-        className="w-full h-11 rounded-xl text-sm font-semibold active:opacity-70"
-        style={{ backgroundColor: '#EDE0FF', color: '#7B4DBE' }}
+        className="w-full text-xs font-bold px-3 py-2 rounded-xl active:opacity-75"
+        style={{ backgroundColor: '#4A2B8A', color: '#F8F4FF' }}
       >
-        📷 오늘 체중 사진 보기
+        📷 사진 보기
       </button>
 
       {viewOpen && signedUrl && (
@@ -72,9 +82,15 @@ export default function EnemyPhotoButton({ hasPhoto, signedUrl, challengeId, cha
             className="w-full max-w-[430px] rounded-t-3xl flex flex-col"
             style={{ backgroundColor: '#F8F4FF', maxHeight: '85dvh' }}
             onClick={e => e.stopPropagation()}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
           >
             <div className="px-6 pt-5 pb-3 shrink-0">
-              <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ backgroundColor: '#D4C0F0' }} />
+              <div
+                onClick={() => setViewOpen(false)}
+                className="w-10 h-1 rounded-full mx-auto mb-4 cursor-pointer"
+                style={{ backgroundColor: '#D4C0F0' }}
+              />
               <h2 className="text-base font-bold" style={{ color: '#1A0A3D' }}>적의 오늘 체중 사진</h2>
             </div>
             <div className="overflow-y-auto px-6">

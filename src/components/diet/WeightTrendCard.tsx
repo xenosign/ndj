@@ -135,6 +135,18 @@ export default function WeightTrendCard({
 }: Props) {
   const router = useRouter();
   const photoFileInputRef = useRef<HTMLInputElement>(null);
+  const touchStartY = useRef<number | null>(null);
+
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartY.current = e.touches[0].clientY;
+  }
+  function onTouchEnd(close: () => void) {
+    return (e: React.TouchEvent) => {
+      if (touchStartY.current === null) return;
+      if (e.changedTouches[0].clientY - touchStartY.current > 60) close();
+      touchStartY.current = null;
+    };
+  }
 
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadWeight, setUploadWeight] = useState(
@@ -151,9 +163,10 @@ export default function WeightTrendCard({
     todayPhotoPath,
   );
 
-  const oldestLog = recentLogs.length > 1 ? recentLogs[0] : null;
-  const weightChange = oldestLog
-    ? +(currentWeight - oldestLog.weight).toFixed(1)
+  const prevLog = recentLogs.length > 1 ? recentLogs[recentLogs.length - 2] : null;
+  const weightChange = prevLog ? +(currentWeight - prevLog.weight).toFixed(1) : null;
+  const daysAgo = prevLog
+    ? Math.round((Date.now() - new Date(prevLog.logged_date).getTime()) / (1000 * 60 * 60 * 24))
     : null;
   const diff = +(currentWeight - targetWeight).toFixed(1);
 
@@ -259,10 +272,10 @@ export default function WeightTrendCard({
                   kg
                 </span>
               </p>
-              {weightChange !== null && (
+              {weightChange !== null && daysAgo !== null && (
                 <p className="font-bold" style={{ fontSize: '14px' }}>
                   <span style={{ color: 'rgba(255,255,255,0.7)' }}>
-                    어제보다{' '}
+                    {daysAgo}일 전보다{' '}
                   </span>
                   <span
                     style={{
@@ -280,7 +293,7 @@ export default function WeightTrendCard({
               className="w-full text-xs font-bold px-3 py-2 rounded-xl transition-opacity active:opacity-75"
               style={{ backgroundColor: '#4A2B8A', color: '#F8F4FF' }}
             >
-              {currentPhotoPath ? '📷 사진 보기' : '📷 기록 업로드하기'}
+              {currentPhotoPath ? '📷 사진 보기' : '📷 기록 업로드'}
             </button>
           </div>
 
@@ -372,9 +385,12 @@ export default function WeightTrendCard({
             className="w-full max-w-[430px] rounded-t-3xl px-6 pt-5 pb-10 flex flex-col gap-5"
             style={{ backgroundColor: '#F8F4FF' }}
             onClick={(e) => e.stopPropagation()}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd(() => setUploadOpen(false))}
           >
             <div
-              className="w-10 h-1 rounded-full mx-auto"
+              onClick={() => setUploadOpen(false)}
+              className="w-10 h-1 rounded-full mx-auto cursor-pointer"
               style={{ backgroundColor: '#D4C0F0' }}
             />
             <h2 className="text-base font-bold" style={{ color: '#1A0A3D' }}>
@@ -483,10 +499,13 @@ export default function WeightTrendCard({
             className="w-full max-w-[430px] rounded-t-3xl flex flex-col"
             style={{ backgroundColor: '#F8F4FF', maxHeight: '85dvh' }}
             onClick={(e) => e.stopPropagation()}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd(() => setPhotoViewOpen(false))}
           >
             <div className="px-6 pt-5 pb-3 shrink-0">
               <div
-                className="w-10 h-1 rounded-full mx-auto mb-4"
+                onClick={() => setPhotoViewOpen(false)}
+                className="w-10 h-1 rounded-full mx-auto mb-4 cursor-pointer"
                 style={{ backgroundColor: '#D4C0F0' }}
               />
               <h2 className="text-base font-bold" style={{ color: '#1A0A3D' }}>

@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 export default function EnemyCommentButton({ challengeId }: { challengeId: string }) {
@@ -9,6 +9,16 @@ export default function EnemyCommentButton({ challengeId }: { challengeId: strin
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const touchStartY = useRef<number | null>(null);
+
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartY.current = e.touches[0].clientY;
+  }
+  function onTouchEnd(e: React.TouchEvent) {
+    if (touchStartY.current === null) return;
+    if (e.changedTouches[0].clientY - touchStartY.current > 60) setOpen(false);
+    touchStartY.current = null;
+  }
 
   async function handleSubmit() {
     if (!content.trim()) { setError('댓글을 입력해주세요.'); return; }
@@ -56,8 +66,14 @@ export default function EnemyCommentButton({ challengeId }: { challengeId: strin
             className="w-full max-w-[430px] rounded-t-3xl px-6 pt-5 pb-10 flex flex-col gap-5"
             style={{ backgroundColor: '#2A1560' }}
             onClick={e => e.stopPropagation()}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
           >
-            <div className="w-10 h-1 rounded-full mx-auto" style={{ backgroundColor: '#4A2B8A' }} />
+            <div
+              onClick={() => setOpen(false)}
+              className="w-10 h-1 rounded-full mx-auto cursor-pointer"
+              style={{ backgroundColor: '#4A2B8A' }}
+            />
 
             <h2 className="text-base font-bold" style={{ color: '#A67FD4' }}>
               적에게 댓글 달기

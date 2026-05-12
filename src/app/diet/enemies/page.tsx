@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import TopHeader from '@/components/layout/TopHeader';
+import JoinChallengeSheet from '@/components/diet/JoinChallengeSheet';
 
 export default async function EnemiesDietPage() {
   const supabase = await createClient();
@@ -65,81 +66,141 @@ export default async function EnemiesDietPage() {
               <p className="text-sm font-medium text-center" style={{ color: '#A67FD4' }}>
                 참여 중인 다이어트가 없습니다.
               </p>
-              <Link
-                href="/diet/join"
-                className="px-6 py-3 rounded-full text-sm font-bold"
-                style={{ backgroundColor: '#7B4DBE', color: '#F8F4FF' }}
-              >
-                적 다이어트 참여하기
-              </Link>
+              <JoinChallengeSheet />
             </div>
           ) : (
             <>
-              {challenges.map(challenge => {
-                const daysLeft = Math.ceil(
-                  (new Date(challenge.target_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-                );
+              {[...challenges]
+                .map(challenge => ({
+                  ...challenge,
+                  _daysLeft: Math.ceil(
+                    (new Date(challenge.target_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                  ),
+                }))
+                .sort((a, b) => {
+                  const aExpired = a._daysLeft <= 0;
+                  const bExpired = b._daysLeft <= 0;
+                  if (aExpired !== bExpired) return aExpired ? 1 : -1;
+                  return a._daysLeft - b._daysLeft;
+                })
+                .map((challenge, index) => {
+                const daysLeft = challenge._daysLeft;
+                const expired = daysLeft <= 0;
                 const nickname = nicknameMap[challenge.user_id];
                 const currentWeight = currentWeightMap[challenge.id] ?? challenge.start_weight;
-                const totalChange = challenge.start_weight - challenge.target_weight;
-                const currentChange = challenge.start_weight - currentWeight;
-                const progress = totalChange > 0
-                  ? Math.min(100, Math.max(0, Math.round((currentChange / totalChange) * 100)))
-                  : 0;
+                const diff = +(currentWeight - challenge.target_weight).toFixed(1);
+                const isOdd = index % 2 === 0;
 
-                return (
-                  <Link
-                    key={challenge.id}
-                    href={`/diet/enemies/${challenge.id}`}
-                    className="w-full rounded-2xl p-5 flex flex-col gap-3 active:opacity-70"
+                const cardContent = isOdd ? (
+                  /* 홀수: 자주색 카드 */
+                  <div
+                    className="w-full rounded-2xl px-5 py-4 flex flex-col gap-3"
+                    style={{ backgroundColor: '#7B4DBE', boxShadow: '0 4px 24px rgba(26,10,61,0.35)' }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                        ⚔️ {nickname ?? '알 수 없음'}
+                      </p>
+                      <span
+                        className="text-xs font-bold px-2.5 py-1 rounded-full"
+                        style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: '#F8F4FF' }}
+                      >
+                        {expired ? `+${Math.abs(daysLeft)}일 초과` : `D-${daysLeft}`}
+                      </span>
+                    </div>
+                    <p className="text-sm font-bold truncate" style={{ color: '#F8F4FF' }}>
+                      {challenge.title}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-col gap-0.5">
+                        <p className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>시작</p>
+                        <p className="text-sm font-bold" style={{ color: 'rgba(255,255,255,0.85)' }}>{challenge.start_weight}kg</p>
+                      </div>
+                      <div className="flex flex-col gap-0.5 items-center">
+                        <p className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>목표</p>
+                        <p className="text-sm font-bold" style={{ color: 'rgba(255,255,255,0.85)' }}>{challenge.target_weight}kg</p>
+                      </div>
+                      <div className="flex flex-col gap-0.5 items-center">
+                        <p className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>현재</p>
+                        <p className="text-xl font-extrabold" style={{ color: '#1A0A3D' }}>{currentWeight}kg</p>
+                      </div>
+                      <div className="flex flex-col gap-0.5 items-end">
+                        <p className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>{diff <= 0 ? '목표 달성' : '목표까지'}</p>
+                        <p className="text-sm font-bold" style={{ color: diff <= 0 ? '#A8E6A3' : 'rgba(255,255,255,0.85)' }}>
+                          {diff <= 0 ? `-${Math.abs(diff)}kg 😄` : `${diff}kg`}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* 짝수: 흰색 카드 */
+                  <div
+                    className="w-full rounded-2xl px-5 py-4 flex flex-col gap-3"
                     style={{ backgroundColor: '#F8F4FF', boxShadow: '0 4px 20px rgba(123,77,190,0.28)' }}
                   >
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-semibold" style={{ color: '#A67FD4' }}>
-                        {nickname ?? '알 수 없음'}
+                        ⚔️ {nickname ?? '알 수 없음'}
                       </p>
                       <span
                         className="text-xs font-bold px-2.5 py-1 rounded-full"
                         style={{ backgroundColor: '#EDE0FF', color: '#7B4DBE' }}
                       >
-                        D-{daysLeft}일
+                        {expired ? `+${Math.abs(daysLeft)}일 초과` : `D-${daysLeft}`}
                       </span>
                     </div>
-
-                    <p className="text-sm font-bold" style={{ color: '#1A0A3D' }}>
+                    <p className="text-sm font-bold truncate" style={{ color: '#1A0A3D' }}>
                       {challenge.title}
                     </p>
-
-                    <div>
-                      <div className="flex justify-between mb-1.5">
-                        <span className="text-xs" style={{ color: '#A67FD4' }}>
-                          현재 {currentWeight}kg
-                        </span>
-                        <span className="text-xs font-semibold" style={{ color: '#7B4DBE' }}>
-                          {progress}%
-                        </span>
-                        <span className="text-xs" style={{ color: '#A67FD4' }}>
-                          목표 {challenge.target_weight}kg
-                        </span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-col gap-0.5">
+                        <p className="text-xs" style={{ color: '#A67FD4' }}>시작</p>
+                        <p className="text-sm font-bold" style={{ color: '#7B4DBE' }}>{challenge.start_weight}kg</p>
                       </div>
-                      <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#EDE0FF' }}>
-                        <div
-                          className="h-full rounded-full"
-                          style={{ width: `${progress}%`, backgroundColor: '#7B4DBE' }}
-                        />
+                      <div className="flex flex-col gap-0.5 items-center">
+                        <p className="text-xs" style={{ color: '#A67FD4' }}>목표</p>
+                        <p className="text-sm font-bold" style={{ color: '#7B4DBE' }}>{challenge.target_weight}kg</p>
+                      </div>
+                      <div className="flex flex-col gap-0.5 items-center">
+                        <p className="text-xs" style={{ color: '#A67FD4' }}>현재</p>
+                        <p className="text-xl font-extrabold" style={{ color: '#4A2B8A' }}>{currentWeight}kg</p>
+                      </div>
+                      <div className="flex flex-col gap-0.5 items-end">
+                        <p className="text-xs" style={{ color: '#A67FD4' }}>{diff <= 0 ? '목표 달성' : '목표까지'}</p>
+                        <p className="text-sm font-bold" style={{ color: diff <= 0 ? '#4CAF50' : '#7B4DBE' }}>
+                          {diff <= 0 ? `-${Math.abs(diff)}kg 😄` : `${diff}kg`}
+                        </p>
                       </div>
                     </div>
+                  </div>
+                );
+
+                return expired ? (
+                  <div key={challenge.id} className="relative pointer-events-none">
+                    <div style={{ opacity: 0.5 }}>{cardContent}</div>
+                    <div className="absolute inset-0 rounded-2xl flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.25)' }}>
+                      <p
+                        className="text-2xl font-black tracking-widest border-4 px-4 py-1 rounded-lg"
+                        style={{
+                          color: '#E53935',
+                          borderColor: '#E53935',
+                          transform: 'rotate(-15deg)',
+                          opacity: 0.85,
+                          textShadow: '0 1px 2px rgba(0,0,0,0.15)',
+                        }}
+                      >
+                        기한 초과
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <Link key={challenge.id} href={`/diet/enemies/${challenge.id}`} className="block active:opacity-75">
+                    {cardContent}
                   </Link>
                 );
               })}
 
-              <Link
-                href="/diet/join"
-                className="w-full h-13 rounded-2xl font-bold text-sm flex items-center justify-center border-2 active:opacity-70"
-                style={{ borderColor: '#D4C0F0', color: '#A67FD4', backgroundColor: '#F8F4FF' }}
-              >
-                + 적 추가하기
-              </Link>
+              <JoinChallengeSheet />
             </>
           )}
         </div>

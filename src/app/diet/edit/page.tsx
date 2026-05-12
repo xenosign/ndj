@@ -20,7 +20,6 @@ export default function DietEditPage() {
     title: '',
     targetWeight: '',
     targetDate: '',
-    deposit: '',
   });
 
   function setField(key: keyof typeof form, value: string) {
@@ -35,7 +34,7 @@ export default function DietEditPage() {
 
       const { data: challenge } = await supabase
         .from('diet_challenges')
-        .select('id, title, target_weight, target_date, deposit')
+        .select('id, title, target_weight, target_date')
         .eq('user_id', user.id)
         .single();
 
@@ -46,7 +45,6 @@ export default function DietEditPage() {
         title: challenge.title,
         targetWeight: String(challenge.target_weight),
         targetDate: challenge.target_date,
-        deposit: String(challenge.deposit ?? 0),
       });
       setLoading(false);
     }
@@ -81,7 +79,6 @@ export default function DietEditPage() {
           title: form.title,
           target_weight: parseFloat(form.targetWeight),
           target_date: form.targetDate,
-          deposit: parseInt(form.deposit || '0'),
         })
         .eq('id', challengeId);
 
@@ -199,22 +196,6 @@ export default function DietEditPage() {
             className="w-full h-12 px-4 rounded-xl text-sm outline-none"
             style={{ backgroundColor: '#F8F4FF', color: '#1A0A3D' }}
           />
-        </Field>
-
-        <Field label="예치금">
-          <div className="relative">
-            <input
-              type="number"
-              placeholder="0"
-              value={form.deposit}
-              onChange={e => setField('deposit', e.target.value)}
-              className="w-full h-12 px-4 pr-10 rounded-xl text-sm outline-none"
-              style={{ backgroundColor: '#F8F4FF', color: '#1A0A3D' }}
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium" style={{ color: '#4A2B8A' }}>
-              원
-            </span>
-          </div>
         </Field>
 
         {error && (

@@ -2,9 +2,10 @@
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: '네 다이어트를 적에게 알려라!',
-    short_name: 'NDJ',
-    description: '여러분의 다이어트를 주변인과 공유하여 다이어트를 성공!!',
+    name: '당신의 다이어트를 함께하는 WE GO BE thin',
+    short_name: 'WEGOBE',
+    description:
+      '여러분의 다이어트를 주변인과 공유하여 다이어트를 성공시켜 보세요!',
     start_url: '/',
     display: 'standalone',
     orientation: 'portrait',

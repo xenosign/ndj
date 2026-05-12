@@ -17,7 +17,7 @@ export default function LogoutButton() {
     <button
       onClick={handleLogout}
       className="w-full h-11 rounded-xl font-semibold text-sm active:opacity-70"
-      style={{ backgroundColor: '#FFF5F5', color: '#F44336' }}
+      style={{ backgroundColor: '#4A2B8A', color: '#F8F4FF' }}
     >
       로그아웃
     </button>

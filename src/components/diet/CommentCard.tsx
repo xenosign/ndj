@@ -40,7 +40,7 @@ function CommentAvatar({
       className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0"
       style={{ backgroundColor: '#EDE0FF' }}
     >
-      {avatarUrl ? (
+      {avatarUrl?.startsWith('http') ? (
         <Image
           src={avatarUrl}
           alt={nickname ?? ''}

@@ -1,10 +1,12 @@
-﻿import ScrollableArea from '@/components/layout/ScrollableArea';
+import ScrollableArea from '@/components/layout/ScrollableArea';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import TopHeader from '@/components/layout/TopHeader';
-import BoomVoteButtons from '@/components/diet/BoomVoteButtons';
-import CommentBoard from '@/components/diet/CommentBoard';
-import EnemyPhotoButton from '@/components/diet/EnemyPhotoButton';
+import CommentCard from '@/components/diet/CommentCard';
+import EnemyMissionCard from '@/components/diet/EnemyMissionCard';
+import EnemyWeightTrendCard from '@/components/diet/EnemyWeightTrendCard';
+import EnemyReactionBar from '@/components/diet/EnemyReactionBar';
+import LeaveChallengeButton from '@/components/diet/LeaveChallengButton';
 
 export default async function EnemyDietDetailPage({
   params,
@@ -19,7 +21,7 @@ export default async function EnemyDietDetailPage({
 
   const { data: challenge } = await supabase
     .from('diet_challenges')
-    .select('id, title, start_weight, target_weight, target_date, deposit, user_id')
+    .select('id, title, start_weight, target_weight, target_date, user_id')
     .eq('id', id)
     .single();
 
@@ -34,7 +36,6 @@ export default async function EnemyDietDetailPage({
 
   if (!participant) redirect('/diet/enemies');
 
-  // 적 닉네임
   const { data: ownerProfile } = await supabase
     .from('profiles')
     .select('nickname')
@@ -42,16 +43,57 @@ export default async function EnemyDietDetailPage({
     .single();
 
   const today = new Date().toISOString().split('T')[0];
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
 
-  const { data: latestLog } = await supabase
-    .from('diet_daily_logs')
-    .select('weight, logged_date, photo_url')
-    .eq('challenge_id', id)
-    .order('logged_date', { ascending: false })
-    .limit(1)
-    .single();
+  const [
+    { data: recentLogs },
+    { data: todayMission },
+    { data: myVerification },
+    { data: myReactionRow },
+    { data: allReactions },
+    { data: participants },
+  ] = await Promise.all([
+    supabase
+      .from('diet_daily_logs')
+      .select('weight, logged_date, photo_url')
+      .eq('challenge_id', id)
+      .gte('logged_date', sevenDaysAgoStr)
+      .order('logged_date', { ascending: true }),
+    supabase
+      .from('diet_missions')
+      .select('content, photo_url')
+      .eq('challenge_id', id)
+      .eq('mission_date', today)
+      .maybeSingle(),
+    supabase
+      .from('diet_mission_verifications')
+      .select('id')
+      .eq('challenge_id', id)
+      .eq('mission_date', today)
+      .eq('requester_id', user.id)
+      .maybeSingle(),
+    supabase
+      .from('diet_reactions')
+      .select('reaction')
+      .eq('challenge_id', id)
+      .eq('logged_date', today)
+      .eq('user_id', user.id)
+      .maybeSingle(),
+    supabase
+      .from('diet_reactions')
+      .select('user_id, reaction')
+      .eq('challenge_id', id)
+      .eq('logged_date', today),
+    supabase
+      .from('diet_participants')
+      .select('user_id')
+      .eq('challenge_id', id),
+  ]);
 
-  const currentWeight: number = latestLog?.weight ?? challenge.start_weight;
+  const latestLog = recentLogs && recentLogs.length > 0 ? recentLogs[recentLogs.length - 1] : null;
+  const currentWeight: number = latestLog?.weight ?? (challenge.start_weight as number);
   const todayPhotoPath: string | null =
     latestLog?.logged_date === today ? (latestLog.photo_url as string | null) : null;
 
@@ -63,24 +105,28 @@ export default async function EnemyDietDetailPage({
     todayPhotoSignedUrl = signedData?.signedUrl ?? null;
   }
 
-  const { data: booms } = await supabase
-    .from('diet_booms')
-    .select('is_boom_up')
-    .eq('challenge_id', id);
+  let missionPhotoSignedUrl: string | null = null;
+  if (todayMission?.photo_url) {
+    const { data: signedData } = await supabase.storage
+      .from('diet-photos')
+      .createSignedUrl(todayMission.photo_url as string, 3600);
+    missionPhotoSignedUrl = signedData?.signedUrl ?? null;
+  }
 
-  const boomUp = booms?.filter(b => b.is_boom_up).length ?? 0;
-  const boomDown = booms?.filter(b => !b.is_boom_up).length ?? 0;
+  const participantIds = (participants ?? []).map(p => p.user_id as string);
+  const { data: participantProfiles } = participantIds.length > 0
+    ? await supabase.from('profiles').select('id, nickname, avatar_url').in('id', participantIds)
+    : { data: [] };
 
-  const { data: myVoteRow } = await supabase
-    .from('diet_booms')
-    .select('is_boom_up')
-    .eq('challenge_id', id)
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single();
-
-  const myVote: boolean | null = myVoteRow ? (myVoteRow.is_boom_up as boolean) : null;
+  const reactionMap = Object.fromEntries(
+    (allReactions ?? []).map(r => [r.user_id as string, r.reaction as string])
+  );
+  const reactionParticipants = (participantProfiles ?? []).map(p => ({
+    id: p.id as string,
+    nickname: p.nickname as string | null,
+    avatarUrl: p.avatar_url as string | null,
+    reaction: reactionMap[p.id as string] ?? null,
+  }));
 
   const daysLeft = Math.ceil(
     (new Date(challenge.target_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
@@ -88,7 +134,6 @@ export default async function EnemyDietDetailPage({
 
   const startWeight = challenge.start_weight as number;
   const targetWeight = challenge.target_weight as number;
-  const diff = +(targetWeight - currentWeight).toFixed(1);
   const totalChange = startWeight - targetWeight;
   const currentChange = startWeight - currentWeight;
   const progress = totalChange > 0
@@ -104,86 +149,68 @@ export default async function EnemyDietDetailPage({
 
           {/* 챌린지 타이틀 카드 */}
           <div
-            className="rounded-2xl px-5 py-4 flex flex-col gap-3"
+            className="rounded-2xl px-5 py-4 flex items-center justify-between"
             style={{ backgroundColor: '#F8F4FF', boxShadow: '0 4px 20px rgba(123,77,190,0.28)' }}
           >
-            <p className="text-base font-bold" style={{ color: '#1A0A3D' }}>{challenge.title as string}</p>
-            <div className="flex items-center gap-2">
-              <span
-                className="text-xs font-semibold px-3 py-1 rounded-full"
-                style={{ backgroundColor: '#EDE0FF', color: '#7B4DBE' }}
-              >
-                D-{daysLeft}일
-              </span>
-              <span
-                className="text-xs font-semibold px-3 py-1 rounded-full"
-                style={{ backgroundColor: '#F8F4FF', color: '#A67FD4' }}
-              >
-                💰 {(challenge.deposit as number).toLocaleString()}원
-              </span>
-            </div>
+            <p className="text-base font-bold truncate" style={{ color: '#1A0A3D' }}>{challenge.title as string}</p>
+            <span
+              className="text-xs font-semibold px-3 py-1 rounded-full shrink-0 ml-3"
+              style={{ backgroundColor: '#EDE0FF', color: '#7B4DBE' }}
+            >
+              D-{daysLeft}
+            </span>
           </div>
 
           {/* 체중 현황 카드 */}
-          <div
-            className="rounded-2xl px-5 py-5 flex flex-col gap-4"
-            style={{ backgroundColor: '#F8F4FF', boxShadow: '0 4px 20px rgba(123,77,190,0.28)' }}
-          >
-            <div className="flex items-end justify-between">
-              <div>
-                <p className="text-xs font-medium mb-1" style={{ color: '#A67FD4' }}>현재 체중</p>
-                <p className="font-extrabold leading-none" style={{ color: '#1A0A3D', fontSize: '48px' }}>
-                  {currentWeight}
-                  <span className="text-lg font-semibold ml-1" style={{ color: '#A67FD4' }}>kg</span>
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs font-medium mb-1" style={{ color: '#A67FD4' }}>목표까지</p>
-                <p className="text-2xl font-bold" style={{ color: diff <= 0 ? '#4CAF50' : '#7B4DBE' }}>
-                  {diff > 0 ? `${diff}kg` : `${Math.abs(diff)}kg ✓`}
-                </p>
-              </div>
-            </div>
+          <EnemyWeightTrendCard
+            currentWeight={currentWeight}
+            startWeight={startWeight}
+            targetWeight={targetWeight}
+            recentLogs={(recentLogs ?? []).map(l => ({
+              logged_date: l.logged_date as string,
+              weight: l.weight as number,
+            }))}
+            progress={progress}
+            hasPhoto={!!todayPhotoPath}
+            signedUrl={todayPhotoSignedUrl}
+            challengeId={challenge.id}
+            challengeOwnerId={challenge.user_id as string}
+          />
 
-            <div>
-              <div className="flex justify-between mb-1.5">
-                <span className="text-xs" style={{ color: '#A67FD4' }}>시작 {startWeight}kg</span>
-                <span className="text-xs font-semibold" style={{ color: '#7B4DBE' }}>{progress}%</span>
-                <span className="text-xs" style={{ color: '#A67FD4' }}>목표 {targetWeight}kg</span>
-              </div>
-              <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#EDE0FF' }}>
-                <div
-                  className="h-full rounded-full"
-                  style={{ width: `${progress}%`, backgroundColor: '#7B4DBE' }}
-                />
-              </div>
-            </div>
+          {/* 오늘의 미션 */}
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-bold px-1" style={{ color: '#1A0A3D' }}>오늘의 미션</p>
+            <EnemyMissionCard
+              challengeId={challenge.id}
+              challengeOwnerId={challenge.user_id as string}
+              todayMission={todayMission ? {
+                content: todayMission.content as string,
+                photo_url: todayMission.photo_url as string | null,
+              } : null}
+              todayPhotoSignedUrl={missionPhotoSignedUrl}
+              alreadyRequested={!!myVerification}
+              myReaction={(myReactionRow?.reaction as string | null) ?? null}
+              today={today}
+            />
+          </div>
 
-            {/* 사진 버튼 */}
-            <EnemyPhotoButton
-              hasPhoto={!!todayPhotoPath}
-              signedUrl={todayPhotoSignedUrl}
+          {/* 다른 사람들 반응 보기 */}
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-bold px-1" style={{ color: '#1A0A3D' }}>다른 사람들 반응 보기</p>
+            <EnemyReactionBar participants={reactionParticipants} />
+          </div>
+
+          {/* 댓글 */}
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-bold px-1" style={{ color: '#1A0A3D' }}>다른 사람의 댓글보기</p>
+            <CommentCard
               challengeId={challenge.id}
               challengeOwnerId={challenge.user_id as string}
             />
           </div>
 
-          {/* 붐업 / 붐다운 */}
-          <BoomVoteButtons
-            challengeId={challenge.id}
-            challengeOwnerId={challenge.user_id as string}
-            initialBoomUp={boomUp}
-            initialBoomDown={boomDown}
-            myVote={myVote}
-          />
-
-          {/* 댓글 */}
-          <CommentBoard
-            challengeId={challenge.id}
-            challengeOwnerId={challenge.user_id as string}
-            buttonLabel="💬 적에게 댓글 달기"
-            placeholder="적에게 한마디..."
-          />
+          {/* 탈퇴 */}
+          <LeaveChallengeButton challengeId={challenge.id} />
 
         </div>
       </ScrollableArea>
