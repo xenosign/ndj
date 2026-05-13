@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { requestFCMToken } from "@/lib/firebase/messaging";
+import { createClient } from "@/lib/supabase/client";
 
 export default function NotificationInit() {
   const tokenRef = useRef<string | null>(null);
@@ -14,7 +15,7 @@ export default function NotificationInit() {
     )
       return;
 
-    async function init() {
+    async function registerToken() {
       const token = await requestFCMToken();
       if (!token) return;
       tokenRef.current = token;
@@ -26,7 +27,29 @@ export default function NotificationInit() {
       });
     }
 
-    init();
+    const supabase = createClient();
+
+    // 현재 세션이 있으면 즉시 등록
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) registerToken();
+    });
+
+    // 로그인/로그아웃 이벤트 감지
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN") {
+        registerToken();
+      } else if (event === "SIGNED_OUT") {
+        const token = tokenRef.current;
+        if (token) {
+          fetch("/api/fcm-token", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token }),
+          });
+          tokenRef.current = null;
+        }
+      }
+    });
 
     function handleUnload() {
       const token = tokenRef.current;
@@ -38,7 +61,10 @@ export default function NotificationInit() {
     }
 
     window.addEventListener("beforeunload", handleUnload);
-    return () => window.removeEventListener("beforeunload", handleUnload);
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener("beforeunload", handleUnload);
+    };
   }, []);
 
   return null;
