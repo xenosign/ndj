@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { requestFCMToken } from "@/lib/firebase/messaging";
 import { createClient } from "@/lib/supabase/client";
+import { initMobileLogger } from "@/lib/mobile-logger";
 
 export default function NotificationInit() {
   const tokenRef = useRef<string | null>(null);
@@ -14,6 +15,8 @@ export default function NotificationInit() {
       !("serviceWorker" in navigator)
     )
       return;
+
+    initMobileLogger();
 
     async function registerToken() {
       console.log("[NI] registerToken 시작");

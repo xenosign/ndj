@@ -16,7 +16,10 @@
       "Bash(Get-ChildItem -Path \"D:\\\\git\\\\ndj\\\\src\" -Recurse -Include \"*.tsx\", \"*.ts\")",
       "Bash(Select-Object -ExpandProperty FullName)",
       "PowerShell(Get-ChildItem -Path \"D:\\\\git\\\\ndj\" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 50 | ForEach-Object { $_.FullName })",
-      "Bash(Get-ChildItem -Recurse -Path \"D:\\\\git\\\\ndj\" -Include \"*auth*\",\"*profile*\",\"*login*\" -Exclude \"node_modules\" -ErrorAction SilentlyContinue)"
+      "Bash(Get-ChildItem -Recurse -Path \"D:\\\\git\\\\ndj\" -Include \"*auth*\",\"*profile*\",\"*login*\" -Exclude \"node_modules\" -ErrorAction SilentlyContinue)",
+      "Bash(Get-ChildItem -Path \"D:\\\\git\\\\ndj\" -Recurse -Directory)",
+      "Bash(Select-Object -First 20)",
+      "Bash(xargs grep -l \"supabase\\\\|createClient\")"
     ]
   }
 }
