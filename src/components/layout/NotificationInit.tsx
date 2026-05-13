@@ -29,7 +29,6 @@ export default function NotificationInit() {
 
     const supabase = createClient();
 
-    // 현재 세션이 있으면 즉시 등록
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) registerToken();
     });
