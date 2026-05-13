@@ -25,14 +25,14 @@ export default async function HomePage() {
       style={{ backgroundColor: '#F8F4FF' }}
     >
       <TopHeader showBack={false} />
-      <div className="flex flex-1 flex-col items-center justify-center gap-5 px-6 py-10">
+      <div className="flex flex-1 flex-col items-center overflow-y-auto gap-5 px-6 py-10">
         {/* 로고 */}
         <div className="flex flex-col items-center gap-4 mb-2">
           <Image
             src="/WEGOBE-logo-512.png"
             alt="WEGOBE 로고"
-            width={300}
-            height={300}
+            width={240}
+            height={240}
             style={{ borderRadius: '4rem' }}
             priority
           />

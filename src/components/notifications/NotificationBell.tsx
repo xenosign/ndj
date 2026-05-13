@@ -123,7 +123,7 @@ export default function NotificationBell() {
         <div
           className="absolute z-50 right-3 rounded-2xl flex flex-col overflow-hidden"
           style={{
-            top: 56,
+            top: 46,
             width: "calc(100% - 24px)",
             maxHeight: "65dvh",
             backgroundColor: "#F8F4FF",
