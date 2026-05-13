@@ -259,7 +259,7 @@ export default function EnemyMissionCard({
               <button
                 onClick={() => setPhotoViewOpen(false)}
                 className="w-full h-12 rounded-xl font-bold text-sm"
-                style={{ backgroundColor: '#EDE0FF', color: '#7B4DBE' }}
+                style={{ backgroundColor: '#F8F4FF', color: '#1A0A3D' }}
               >
                 닫기
               </button>

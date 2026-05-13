@@ -2,6 +2,7 @@
 import { randomBytes } from 'crypto';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { getKSTDateString } from '@/utils/date';
 import TopHeader from '@/components/layout/TopHeader';
 import InviteModal from '@/components/diet/InviteModal';
 import WeightTrendCard from '@/components/diet/WeightTrendCard';
@@ -39,14 +40,9 @@ export default async function MyDietPage() {
       .eq('id', challenge.id);
   }
 
-  const today = new Date().toISOString().split('T')[0];
-  const tomorrowDate = new Date();
-  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-  const tomorrow = tomorrowDate.toISOString().split('T')[0];
-
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-  const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
+  const today = getKSTDateString();
+  const tomorrow = getKSTDateString(1);
+  const sevenDaysAgoStr = getKSTDateString(-6);
 
   const { data: recentLogs } = await supabase
     .from('diet_daily_logs')

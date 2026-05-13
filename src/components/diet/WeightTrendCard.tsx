@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
+import { getKSTDateString } from '@/utils/date';
 
 interface WeightLog {
   logged_date: string;
@@ -186,7 +187,7 @@ export default function WeightTrendCard({
     setUploadError(null);
     try {
       const supabase = createClient();
-      const today = new Date().toISOString().split('T')[0];
+      const today = getKSTDateString();
       const path = `${userId}/${challengeId}/${today}`;
       const { error: upErr } = await supabase.storage
         .from('diet-photos')

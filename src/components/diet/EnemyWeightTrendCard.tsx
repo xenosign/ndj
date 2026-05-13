@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import EnemyPhotoButton from '@/components/diet/EnemyPhotoButton';
+import { getKSTDateString } from '@/utils/date';
 
 interface WeightLog {
   logged_date: string;
@@ -37,12 +38,7 @@ function WeightLineChart({ logs }: { logs: WeightLog[] }) {
     return () => observer.disconnect();
   }, []);
 
-  const today = new Date();
-  const days = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(d.getDate() - (6 - i));
-    return d.toISOString().split('T')[0];
-  });
+  const days = Array.from({ length: 7 }, (_, i) => getKSTDateString(-(6 - i)));
 
   const logMap = new Map(logs.map((l) => [l.logged_date, l.weight]));
   const orderedWeights: number[] = [];

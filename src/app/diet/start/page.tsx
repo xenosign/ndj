@@ -6,6 +6,7 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
+import { getKSTDateString } from '@/utils/date';
 
 function generateInviteCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -73,7 +74,7 @@ export default function DietStartPage() {
       // 사진 업로드
       let photoUrl: string | null = null;
       if (photoFile) {
-        const today = new Date().toISOString().split('T')[0];
+        const today = getKSTDateString();
         const path = `${user.id}/${challenge.id}/${today}`;
         const { error: uploadErr } = await supabase.storage
           .from('diet-photos')

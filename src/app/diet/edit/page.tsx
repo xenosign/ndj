@@ -6,6 +6,7 @@ import { use, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
+import { getKSTDateString } from '@/utils/date';
 
 export default function DietEditPage() {
   const router = useRouter();
@@ -86,7 +87,7 @@ export default function DietEditPage() {
 
       // 오늘 체중 사진 업데이트 (선택)
       if (photoFile) {
-        const today = new Date().toISOString().split('T')[0];
+        const today = getKSTDateString();
         const path = `${user.id}/${challengeId}/${today}`;
         await supabase.storage.from('diet-photos').upload(path, photoFile, { upsert: true });
       }

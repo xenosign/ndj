@@ -1,6 +1,7 @@
 import ScrollableArea from '@/components/layout/ScrollableArea';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { getKSTDateString } from '@/utils/date';
 import TopHeader from '@/components/layout/TopHeader';
 import CommentCard from '@/components/diet/CommentCard';
 import EnemyWeightTrendCard from '@/components/diet/EnemyWeightTrendCard';
@@ -41,13 +42,9 @@ export default async function EnemyDietDetailPage({
     .eq('id', challenge.user_id)
     .single();
 
-  const today = new Date().toISOString().split('T')[0];
-  const tomorrowDate = new Date();
-  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-  const tomorrow = tomorrowDate.toISOString().split('T')[0];
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-  const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
+  const today = getKSTDateString();
+  const tomorrow = getKSTDateString(1);
+  const sevenDaysAgoStr = getKSTDateString(-6);
 
   const [
     { data: recentLogs },
