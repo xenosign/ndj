@@ -17,7 +17,8 @@ const initPromise = fetch('/api/firebase-sw-config')
     const messaging = firebase.messaging();
 
     messaging.onBackgroundMessage((payload) => {
-      const { title, body } = payload.notification ?? {};
+      const title = payload.data?.title ?? '알림';
+      const body = payload.data?.body ?? '';
       const url = payload.data?.url ?? '/';
 
       self.registration.showNotification(title ?? '알림', {

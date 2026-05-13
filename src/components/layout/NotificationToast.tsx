@@ -19,8 +19,8 @@ export default function NotificationToast() {
     let unsubscribe: (() => void) | undefined;
     try {
       unsubscribe = onForegroundMessage((payload) => {
-        const title = payload.notification?.title ?? "알림";
-        const body = payload.notification?.body ?? "";
+        const title = (payload.data?.title as string | undefined) ?? payload.notification?.title ?? "알림";
+        const body = (payload.data?.body as string | undefined) ?? payload.notification?.body ?? "";
         const id = Date.now();
 
         setToasts((prev) => [...prev, { id, title, body }]);

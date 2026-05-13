@@ -29,14 +29,9 @@ export async function sendNotification({
 
   await messaging.send({
     token,
-    notification: { title, body },
-    data: { url: url ?? "/" },
+    data: { title, body, url: url ?? "/" },
     webpush: {
-      notification: {
-        icon: "/icons/WEGOBE-logo-192.png",
-        badge: "/icons/WEGOBE-logo-192.png",
-      },
-      fcmOptions: { link: url ?? "/" },
+      headers: { Urgency: "high" },
     },
   });
 }
