@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
+import { useBackClose } from '@/hooks/useBackClose';
 
 export default function InviteModal({ inviteCode }: { inviteCode: string }) {
   const [open, setOpen] = useState(false);
   const [joinUrl, setJoinUrl] = useState('');
   const [copied, setCopied] = useState(false);
+
+  useBackClose(open, () => setOpen(false));
 
   useEffect(() => {
     setJoinUrl(`${window.location.origin}/diet/join/${inviteCode}`);

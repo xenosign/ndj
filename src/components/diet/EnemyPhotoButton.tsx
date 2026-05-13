@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { notifyUser } from '@/lib/notify';
+import { useBackClose } from '@/hooks/useBackClose';
 
 interface Props {
   hasPhoto: boolean;
@@ -13,6 +14,7 @@ interface Props {
 
 export default function EnemyPhotoButton({ hasPhoto, signedUrl, challengeId, challengeOwnerId }: Props) {
   const [viewOpen, setViewOpen] = useState(false);
+  useBackClose(viewOpen, () => setViewOpen(false));
   const today = new Date().toISOString().split('T')[0];
   const storageKey = `photo-requested:${challengeId}:${today}`;
   const [requested, setRequested] = useState(false);

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { notifyUser } from '@/lib/notify';
+import { useBackClose } from '@/hooks/useBackClose';
 
 const EMOJI_CATEGORIES = {
   good:    ['👍', '🔥', '💪', '❤️', '🎉', '😍', '🤩', '🙌', '✨', '😎'],
@@ -56,6 +57,9 @@ export default function EnemyMissionCard({
   const [reacting, setReacting] = useState(false);
   const [openCategory, setOpenCategory] = useState<Category | null>(null);
   const [pendingEmoji, setPendingEmoji] = useState<string | null>(null);
+
+  useBackClose(photoViewOpen, () => setPhotoViewOpen(false));
+  useBackClose(openCategory !== null, () => setOpenCategory(null));
 
   async function handleMissionRequest() {
     if (missionRequested || missionRequesting) return;

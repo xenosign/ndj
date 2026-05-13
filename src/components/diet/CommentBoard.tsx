@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { notifyUser } from '@/lib/notify';
+import { useBackClose } from '@/hooks/useBackClose';
 
 interface Comment {
   id: string;
@@ -29,6 +30,7 @@ function formatDate(iso: string) {
 
 export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabel, placeholder = '적에게 한마디...' }: Props) {
   const [open, setOpen] = useState(false);
+  useBackClose(open, () => setOpen(false));
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');

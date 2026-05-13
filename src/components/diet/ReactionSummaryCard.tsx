@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { useBackClose } from '@/hooks/useBackClose';
 
 interface Participant {
   nickname: string | null;
@@ -52,6 +53,7 @@ function Avatar({ participant, badgeBg }: { participant: Participant; badgeBg: s
 
 export default function ReactionSummaryCard({ good, neutral, bad }: Props) {
   const [activeKey, setActiveKey] = useState<'good' | 'neutral' | 'bad' | null>(null);
+  useBackClose(activeKey !== null, () => setActiveKey(null));
   const data = { good, neutral, bad };
   const activeCard = CARDS.find(c => c.key === activeKey);
   const activeList = activeKey ? data[activeKey] : [];

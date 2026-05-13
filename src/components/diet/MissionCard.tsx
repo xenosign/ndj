@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
+import { useBackClose } from '@/hooks/useBackClose';
 
 interface Mission {
   id: string;
@@ -53,6 +54,11 @@ export default function MissionCard({
   const [missionContent, setMissionContent] = useState(tomorrowMission?.content ?? '');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  useBackClose(photoUploadOpen, () => setPhotoUploadOpen(false));
+  useBackClose(photoViewOpen, () => setPhotoViewOpen(false));
+  useBackClose(todayPostOpen, () => setTodayPostOpen(false));
+  useBackClose(tomorrowPostOpen, () => setTomorrowPostOpen(false));
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];

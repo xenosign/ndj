@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { notifyUser } from '@/lib/notify';
+import { useBackClose } from '@/hooks/useBackClose';
 
 type Step = 'code' | 'confirm';
 type ParticipantType = 'kakao' | 'nickname' | 'anonymous';
@@ -22,6 +23,8 @@ export default function JoinChallengeSheet() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>('code');
+
+  useBackClose(open, () => setOpen(false));
   const [code, setCode] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);

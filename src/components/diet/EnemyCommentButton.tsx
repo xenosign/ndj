@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useBackClose } from '@/hooks/useBackClose';
 
 export default function EnemyCommentButton({ challengeId }: { challengeId: string }) {
   const [open, setOpen] = useState(false);
+  useBackClose(open, () => setOpen(false));
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

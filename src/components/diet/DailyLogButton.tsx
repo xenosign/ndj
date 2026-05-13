@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { getKSTDateString } from '@/utils/date';
+import { useBackClose } from '@/hooks/useBackClose';
 
 interface Props {
   challengeId: string;
@@ -25,6 +26,7 @@ export default function DailyLogButton({ challengeId, userId, todayWeight, today
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   const [photoViewOpen, setPhotoViewOpen] = useState(false);
+  useBackClose(photoViewOpen, () => setPhotoViewOpen(false));
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [currentPhotoPath, setCurrentPhotoPath] = useState<string | null>(todayPhotoPath);
 
