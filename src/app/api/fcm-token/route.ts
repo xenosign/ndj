@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
-  const { token } = await req.json();
-  if (!token) return NextResponse.json({ error: "token required" }, { status: 400 });
+  const { token, deviceId } = await req.json();
+  if (!token || !deviceId) return NextResponse.json({ error: "token and deviceId required" }, { status: 400 });
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -12,8 +12,8 @@ export async function POST(req: NextRequest) {
   const { error } = await supabase
     .from("fcm_tokens")
     .upsert(
-      { user_id: user.id, token, updated_at: new Date().toISOString() },
-      { onConflict: "token" }
+      { user_id: user.id, token, device_id: deviceId, updated_at: new Date().toISOString() },
+      { onConflict: "user_id,device_id" }
     );
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

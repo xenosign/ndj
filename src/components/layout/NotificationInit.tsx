@@ -16,6 +16,16 @@ export default function NotificationInit() {
     )
       return;
 
+    function getDeviceId(): string {
+      const key = "fcm_device_id";
+      let id = localStorage.getItem(key);
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem(key, id);
+      }
+      return id;
+    }
+
     async function registerToken() {
       if (registeringRef.current || tokenRef.current) return;
       registeringRef.current = true;
@@ -25,10 +35,11 @@ export default function NotificationInit() {
         if (!token) { console.warn("[NI] 토큰 없음"); return; }
         tokenRef.current = token;
 
+        const deviceId = getDeviceId();
         const res = await fetch("/api/fcm-token", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
+          body: JSON.stringify({ token, deviceId }),
         });
         console.log("[NI] fcm-token 응답:", res.status);
       } finally {

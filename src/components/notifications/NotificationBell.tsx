@@ -72,26 +72,13 @@ export default function NotificationBell() {
     setOpen(true);
     setLoading(true);
 
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setLoading(false); return; }
-
-    const { data } = await supabase
-      .from("notifications")
-      .select("id, title, body, url, is_read, created_at")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(30);
+    const [data] = await Promise.all([
+      fetch("/api/notifications").then((r) => r.json()),
+      fetch("/api/notifications", { method: "PATCH" }),
+    ]);
 
     setNotifications(data ?? []);
     setLoading(false);
-
-    await supabase
-      .from("notifications")
-      .update({ is_read: true })
-      .eq("user_id", user.id)
-      .eq("is_read", false);
-
     setUnreadCount(0);
   }
 
@@ -126,7 +113,7 @@ export default function NotificationBell() {
       {/* 바깥 클릭 닫기 */}
       {open && (
         <div
-          className="absolute inset-0 z-40"
+          className="fixed inset-0 z-40"
           onClick={() => setOpen(false)}
         />
       )}
