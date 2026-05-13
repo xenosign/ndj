@@ -1,14 +1,14 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import BottomNav from "@/components/layout/BottomNav";
-import NotificationInit from "@/components/layout/NotificationInit";
-import NotificationToast from "@/components/layout/NotificationToast";
-import NotificationBell from "@/components/notifications/NotificationBell";
-import Script from "next/script";
+import type { Metadata } from 'next';
+import './globals.css';
+import BottomNav from '@/components/layout/BottomNav';
+import NotificationInit from '@/components/layout/NotificationInit';
+import NotificationToast from '@/components/layout/NotificationToast';
+import NotificationBell from '@/components/notifications/NotificationBell';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
-  title: "NDJ App",
-  description: "NDJ Progressive Web Application",
+  title: 'WEGOBE',
+  description: 'WEGOBE thin, DIET',
 };
 
 export default function RootLayout({

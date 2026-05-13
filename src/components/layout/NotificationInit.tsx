@@ -16,20 +16,23 @@ export default function NotificationInit() {
       return;
 
     async function registerToken() {
+      console.log("[NI] registerToken 시작");
       const token = await requestFCMToken();
-      if (!token) return;
+      if (!token) { console.warn("[NI] 토큰 없음"); return; }
       tokenRef.current = token;
 
-      await fetch("/api/fcm-token", {
+      const res = await fetch("/api/fcm-token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),
       });
+      console.log("[NI] fcm-token 응답:", res.status);
     }
 
     const supabase = createClient();
 
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("[NI] getSession:", session ? "세션있음" : "세션없음");
       if (session) registerToken();
     });
 

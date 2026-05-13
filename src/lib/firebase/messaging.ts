@@ -10,25 +10,31 @@ export function getFirebaseMessaging() {
 
 export async function requestFCMToken(): Promise<string | null> {
   try {
+    console.log("[FCM] 권한 요청, 현재 상태:", Notification.permission);
     const permission = await Notification.requestPermission();
+    console.log("[FCM] 권한 결과:", permission);
     if (permission !== "granted") return null;
 
+    console.log("[FCM] SW 등록 시도");
     const registration = await navigator.serviceWorker.register(
       "/firebase-messaging-sw.js",
       { scope: "/" }
     );
+    console.log("[FCM] SW 등록 완료, active:", !!registration.active, "installing:", !!registration.installing, "waiting:", !!registration.waiting);
 
     await new Promise<void>((resolve) => {
       if (registration.active) { resolve(); return; }
       const target = registration.installing ?? registration.waiting;
       if (!target) { resolve(); return; }
       target.addEventListener("statechange", function handler() {
+        console.log("[FCM] SW state:", this.state);
         if (this.state === "activated") {
           this.removeEventListener("statechange", handler);
           resolve();
         }
       });
     });
+    console.log("[FCM] SW active 완료");
 
     const messaging = getFirebaseMessaging();
     const token = await getToken(messaging, {
@@ -36,9 +42,10 @@ export async function requestFCMToken(): Promise<string | null> {
       serviceWorkerRegistration: registration,
     });
 
+    console.log("[FCM] 토큰 발급:", token ? "성공" : "실패(빈값)");
     return token;
   } catch (error) {
-    console.error("FCM 토큰 발급 실패:", error);
+    console.error("[FCM] 토큰 발급 실패:", error);
     return null;
   }
 }

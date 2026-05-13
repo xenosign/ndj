@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { createClient } from "@/lib/supabase/client";
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { createClient } from '@/lib/supabase/client';
 
 export default function SplashPage() {
   const router = useRouter();
@@ -15,7 +15,7 @@ export default function SplashPage() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      router.replace(user ? "/home" : "/login");
+      router.replace(user ? '/home' : '/login');
     }, 1500);
 
     return () => clearTimeout(timer);
@@ -25,7 +25,7 @@ export default function SplashPage() {
     <main className="relative flex-1 w-full">
       <Image
         src="/WEGOBE.webp"
-        alt="NDJ"
+        alt="WEGOBE"
         fill
         priority
         className="object-cover md:object-contain"
