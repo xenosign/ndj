@@ -72,11 +72,11 @@ export default async function MyDietPage() {
   ] = await Promise.all([
     supabase
       .from('diet_participants')
-      .select('user_id')
+      .select('user_id, character')
       .eq('challenge_id', challenge.id),
     supabase
       .from('diet_reactions')
-      .select('user_id, reaction')
+      .select('user_id, reaction, created_at')
       .eq('challenge_id', challenge.id)
       .eq('logged_date', today),
     supabase
@@ -108,6 +108,9 @@ export default async function MyDietPage() {
 
   // 참여자 프로필 fetch
   const participantIds = (participants ?? []).map(p => p.user_id as string);
+  const characterMap = Object.fromEntries(
+    (participants ?? []).map(p => [p.user_id as string, p.character as string | null])
+  );
   const { data: participantProfiles } = participantIds.length > 0
     ? await supabase
         .from('profiles')
@@ -126,6 +129,9 @@ export default async function MyDietPage() {
   };
   const reactionMap = Object.fromEntries(
     (todayReactions ?? []).map(r => [r.user_id as string, r.reaction as string])
+  );
+  const reactionTimeMap = Object.fromEntries(
+    (todayReactions ?? []).map(r => [r.user_id as string, r.created_at as string])
   );
   const profileMap = Object.fromEntries(
     (participantProfiles ?? []).map(p => [p.id as string, p])
@@ -221,12 +227,27 @@ export default async function MyDietPage() {
           <div className="flex flex-col gap-2">
             <p className="text-sm font-bold px-1" style={{ color: '#1A0A3D' }}>적들의 반응</p>
             <EnemyReactionBar
-              participants={(participantProfiles ?? []).map(p => ({
-                id: p.id as string,
-                nickname: p.nickname as string | null,
-                avatarUrl: p.avatar_url as string | null,
-                reaction: reactionMap[p.id as string] ?? null,
-              }))}
+              participants={(participantProfiles ?? [])
+                .map(p => {
+                  const uid = p.id as string;
+                  const character = characterMap[uid];
+                  const isAnonymous = character && character !== 'kakao' && character !== 'nickname';
+                  return {
+                    id: uid,
+                    nickname: isAnonymous ? character : (p.nickname as string | null),
+                    avatarUrl: isAnonymous ? null : (p.avatar_url as string | null),
+                    reaction: reactionMap[uid] ?? null,
+                    reactionAt: reactionTimeMap[uid] ?? null,
+                  };
+                })
+                .sort((a, b) => {
+                  if (a.reaction && !b.reaction) return -1;
+                  if (!a.reaction && b.reaction) return 1;
+                  if (a.reactionAt && b.reactionAt) return b.reactionAt.localeCompare(a.reactionAt);
+                  return 0;
+                })
+                .map(({ reactionAt: _, ...p }) => p)
+              }
             />
 
             {/* 반응 통계 카드 */}

@@ -30,7 +30,9 @@ function CommentAvatar({
         className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
         style={{ backgroundColor: '#D4C0F0' }}
       >
-        <span style={{ fontSize: 14, color: '#7B4DBE' }}>?</span>
+        <span style={{ fontSize: nickname ? 12 : 14, fontWeight: 700, color: '#7B4DBE' }}>
+          {nickname ? nickname[0] : '?'}
+        </span>
       </div>
     );
   }
@@ -75,24 +77,36 @@ export default function CommentCard({ challengeId, challengeOwnerId }: Props) {
 
       if (!data) return;
 
+      const allUserIds = [...new Set(data.map(c => c.user_id as string))];
       const nonAnonIds = [...new Set(
         data.filter(c => !c.is_anonymous).map(c => c.user_id as string)
       )];
-      const { data: profiles } = nonAnonIds.length > 0
-        ? await supabase.from('profiles').select('id, nickname, avatar_url').in('id', nonAnonIds)
-        : { data: [] };
+      const [{ data: profiles }, { data: participantRows }] = await Promise.all([
+        nonAnonIds.length > 0
+          ? supabase.from('profiles').select('id, nickname, avatar_url').in('id', nonAnonIds)
+          : { data: [] },
+        allUserIds.length > 0
+          ? supabase.from('diet_participants').select('user_id, character').eq('challenge_id', challengeId).in('user_id', allUserIds)
+          : { data: [] },
+      ]);
 
       const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id as string, p]));
+      const characterMap = Object.fromEntries(
+        (participantRows ?? []).map(p => [p.user_id as string, p.character as string | null])
+      );
 
       setComments(data.map(c => {
+        const uid = c.user_id as string;
         const anon = c.is_anonymous as boolean;
-        const profile = anon ? null : profileMap[c.user_id as string];
+        const character = characterMap[uid];
+        const isAnonymousParticipant = character && character !== 'kakao' && character !== 'nickname';
+        const profile = (!anon && !isAnonymousParticipant) ? profileMap[uid] : null;
         return {
           id: c.id as string,
           content: c.content as string,
-          is_anonymous: anon,
-          nickname: anon ? null : ((profile?.nickname as string | null) ?? null),
-          avatarUrl: anon ? null : ((profile?.avatar_url as string | null) ?? null),
+          is_anonymous: anon && !isAnonymousParticipant,
+          nickname: isAnonymousParticipant ? character : (anon ? null : ((profile?.nickname as string | null) ?? null)),
+          avatarUrl: (anon || isAnonymousParticipant) ? null : ((profile?.avatar_url as string | null) ?? null),
         };
       }));
     })();
