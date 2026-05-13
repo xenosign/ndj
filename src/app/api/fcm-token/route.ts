@@ -10,11 +10,26 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const { error } = await supabase
-    .from("profiles")
-    .update({ fcm_token: token })
-    .eq("id", user.id);
+    .from("fcm_tokens")
+    .upsert(
+      { user_id: user.id, token, updated_at: new Date().toISOString() },
+      { onConflict: "token" }
+    );
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  return NextResponse.json({ ok: true });
+}
+
+export async function DELETE(req: NextRequest) {
+  const { token } = await req.json();
+  if (!token) return NextResponse.json({ error: "token required" }, { status: 400 });
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  await supabase.from("fcm_tokens").delete().eq("token", token).eq("user_id", user.id);
 
   return NextResponse.json({ ok: true });
 }

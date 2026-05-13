@@ -22,18 +22,33 @@ export async function POST(req: NextRequest) {
     url: url ?? "/notifications",
   });
 
-  // FCM 푸시 발송
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("fcm_token")
-    .eq("id", targetUserId)
-    .single();
+  // FCM 푸시 발송 (등록된 모든 기기)
+  const { data: tokenRows } = await supabase
+    .from("fcm_tokens")
+    .select("token")
+    .eq("user_id", targetUserId);
 
-  if (profile?.fcm_token) {
-    try {
-      await sendNotification({ token: profile.fcm_token, title, body, url: url ?? "/notifications" });
-    } catch (error) {
-      console.error("[notify] FCM 발송 실패:", error);
+  if (tokenRows && tokenRows.length > 0) {
+    const expiredTokens: string[] = [];
+    await Promise.all(
+      tokenRows.map(async ({ token }) => {
+        try {
+          await sendNotification({ token, title, body, url: url ?? "/notifications" });
+        } catch (error: unknown) {
+          const code = (error as { errorInfo?: { code?: string } })?.errorInfo?.code ?? "";
+          if (
+            code === "messaging/registration-token-not-registered" ||
+            code === "messaging/invalid-registration-token"
+          ) {
+            expiredTokens.push(token);
+          } else {
+            console.error("[notify] FCM 발송 실패:", error);
+          }
+        }
+      })
+    );
+    if (expiredTokens.length > 0) {
+      await supabase.from("fcm_tokens").delete().in("token", expiredTokens);
     }
   }
 
