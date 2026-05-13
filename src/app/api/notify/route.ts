@@ -21,8 +21,8 @@ export async function POST(req: NextRequest) {
 
   if (user.id === targetUserId) return NextResponse.json({ ok: true });
 
-  // DB에 알림 저장 (FCM 토큰 유무와 무관하게 항상)
-  await supabase.from("notifications").insert({
+  // DB에 알림 저장 — service role로 타 유저 row INSERT (RLS 우회)
+  await serviceSupabase.from("notifications").insert({
     user_id: targetUserId,
     title,
     body,
