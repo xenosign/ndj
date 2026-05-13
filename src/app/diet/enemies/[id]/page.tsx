@@ -3,9 +3,8 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import TopHeader from '@/components/layout/TopHeader';
 import CommentCard from '@/components/diet/CommentCard';
-import EnemyMissionCard from '@/components/diet/EnemyMissionCard';
 import EnemyWeightTrendCard from '@/components/diet/EnemyWeightTrendCard';
-import EnemyReactionBar from '@/components/diet/EnemyReactionBar';
+import EnemyReactionSection from '@/components/diet/EnemyReactionSection';
 import LeaveChallengeButton from '@/components/diet/LeaveChallengButton';
 
 export default async function EnemyDietDetailPage({
@@ -43,6 +42,9 @@ export default async function EnemyDietDetailPage({
     .single();
 
   const today = new Date().toISOString().split('T')[0];
+  const tomorrowDate = new Date();
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const tomorrow = tomorrowDate.toISOString().split('T')[0];
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
   const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
@@ -50,6 +52,7 @@ export default async function EnemyDietDetailPage({
   const [
     { data: recentLogs },
     { data: todayMission },
+    { data: tomorrowMission },
     { data: myVerification },
     { data: myReactionRow },
     { data: allReactions },
@@ -68,6 +71,12 @@ export default async function EnemyDietDetailPage({
       .eq('mission_date', today)
       .maybeSingle(),
     supabase
+      .from('diet_missions')
+      .select('content')
+      .eq('challenge_id', id)
+      .eq('mission_date', tomorrow)
+      .maybeSingle(),
+    supabase
       .from('diet_mission_verifications')
       .select('id')
       .eq('challenge_id', id)
@@ -83,12 +92,12 @@ export default async function EnemyDietDetailPage({
       .maybeSingle(),
     supabase
       .from('diet_reactions')
-      .select('user_id, reaction')
+      .select('user_id, reaction, created_at')
       .eq('challenge_id', id)
       .eq('logged_date', today),
     supabase
       .from('diet_participants')
-      .select('user_id')
+      .select('user_id, character')
       .eq('challenge_id', id),
   ]);
 
@@ -114,6 +123,9 @@ export default async function EnemyDietDetailPage({
   }
 
   const participantIds = (participants ?? []).map(p => p.user_id as string);
+  const characterMap = Object.fromEntries(
+    (participants ?? []).map(p => [p.user_id as string, p.character as string | null])
+  );
   const { data: participantProfiles } = participantIds.length > 0
     ? await supabase.from('profiles').select('id, nickname, avatar_url').in('id', participantIds)
     : { data: [] };
@@ -121,12 +133,29 @@ export default async function EnemyDietDetailPage({
   const reactionMap = Object.fromEntries(
     (allReactions ?? []).map(r => [r.user_id as string, r.reaction as string])
   );
-  const reactionParticipants = (participantProfiles ?? []).map(p => ({
-    id: p.id as string,
-    nickname: p.nickname as string | null,
-    avatarUrl: p.avatar_url as string | null,
-    reaction: reactionMap[p.id as string] ?? null,
-  }));
+  const reactionTimeMap = Object.fromEntries(
+    (allReactions ?? []).map(r => [r.user_id as string, r.created_at as string])
+  );
+  const reactionParticipants = (participantProfiles ?? [])
+    .map(p => {
+      const uid = p.id as string;
+      const character = characterMap[uid];
+      const isAnonymous = character && character !== 'kakao' && character !== 'nickname';
+      return {
+        id: uid,
+        nickname: isAnonymous ? character : (p.nickname as string | null),
+        avatarUrl: isAnonymous ? null : (p.avatar_url as string | null),
+        reaction: reactionMap[uid] ?? null,
+        reactionAt: reactionTimeMap[uid] ?? null,
+      };
+    })
+    .sort((a, b) => {
+      if (a.reaction && !b.reaction) return -1;
+      if (!a.reaction && b.reaction) return 1;
+      if (a.reactionAt && b.reactionAt) return b.reactionAt.localeCompare(a.reactionAt);
+      return 0;
+    })
+    .map(({ reactionAt: _, ...p }) => p);
 
   const daysLeft = Math.ceil(
     (new Date(challenge.target_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
@@ -177,28 +206,21 @@ export default async function EnemyDietDetailPage({
             challengeOwnerId={challenge.user_id as string}
           />
 
-          {/* 오늘의 미션 */}
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-bold px-1" style={{ color: '#1A0A3D' }}>오늘의 미션</p>
-            <EnemyMissionCard
-              challengeId={challenge.id}
-              challengeOwnerId={challenge.user_id as string}
-              todayMission={todayMission ? {
-                content: todayMission.content as string,
-                photo_url: todayMission.photo_url as string | null,
-              } : null}
-              todayPhotoSignedUrl={missionPhotoSignedUrl}
-              alreadyRequested={!!myVerification}
-              myReaction={(myReactionRow?.reaction as string | null) ?? null}
-              today={today}
-            />
-          </div>
-
-          {/* 다른 사람들 반응 보기 */}
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-bold px-1" style={{ color: '#1A0A3D' }}>다른 사람들 반응 보기</p>
-            <EnemyReactionBar participants={reactionParticipants} />
-          </div>
+          <EnemyReactionSection
+            challengeId={challenge.id}
+            challengeOwnerId={challenge.user_id as string}
+            todayMission={todayMission ? {
+              content: todayMission.content as string,
+              photo_url: todayMission.photo_url as string | null,
+            } : null}
+            todayPhotoSignedUrl={missionPhotoSignedUrl}
+            alreadyRequested={!!myVerification}
+            myReaction={(myReactionRow?.reaction as string | null) ?? null}
+            today={today}
+            tomorrowMissionContent={(tomorrowMission?.content as string | null) ?? null}
+            initialParticipants={reactionParticipants}
+            currentUserId={user.id}
+          />
 
           {/* 댓글 */}
           <div className="flex flex-col gap-2">

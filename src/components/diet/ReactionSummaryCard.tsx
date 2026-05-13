@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 
 interface Participant {
@@ -52,19 +52,9 @@ function Avatar({ participant, badgeBg }: { participant: Participant; badgeBg: s
 
 export default function ReactionSummaryCard({ good, neutral, bad }: Props) {
   const [activeKey, setActiveKey] = useState<'good' | 'neutral' | 'bad' | null>(null);
-  const touchStartY = useRef<number | null>(null);
   const data = { good, neutral, bad };
   const activeCard = CARDS.find(c => c.key === activeKey);
   const activeList = activeKey ? data[activeKey] : [];
-
-  function onTouchStart(e: React.TouchEvent) {
-    touchStartY.current = e.touches[0].clientY;
-  }
-  function onTouchEnd(e: React.TouchEvent) {
-    if (touchStartY.current === null) return;
-    if (e.changedTouches[0].clientY - touchStartY.current > 60) setActiveKey(null);
-    touchStartY.current = null;
-  }
 
   return (
     <>
@@ -92,8 +82,6 @@ export default function ReactionSummaryCard({ good, neutral, bad }: Props) {
             className="w-full max-w-[430px] rounded-t-3xl flex flex-col"
             style={{ backgroundColor: '#F8F4FF', maxHeight: '60dvh' }}
             onClick={e => e.stopPropagation()}
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd}
           >
             <div className="px-6 pt-5 pb-4 shrink-0">
               <div

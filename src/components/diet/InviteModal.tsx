@@ -1,33 +1,22 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 
 export default function InviteModal({ inviteCode }: { inviteCode: string }) {
   const [open, setOpen] = useState(false);
   const [joinUrl, setJoinUrl] = useState('');
   const [copied, setCopied] = useState(false);
-  const touchStartY = useRef<number | null>(null);
 
   useEffect(() => {
     setJoinUrl(`${window.location.origin}/diet/join/${inviteCode}`);
   }, [inviteCode]);
 
   async function copyCode() {
+
     await navigator.clipboard.writeText(inviteCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }
-
-  function onTouchStart(e: React.TouchEvent) {
-    touchStartY.current = e.touches[0].clientY;
-  }
-
-  function onTouchEnd(e: React.TouchEvent) {
-    if (touchStartY.current === null) return;
-    const delta = e.changedTouches[0].clientY - touchStartY.current;
-    if (delta > 60) setOpen(false);
-    touchStartY.current = null;
   }
 
   return (
@@ -50,10 +39,7 @@ export default function InviteModal({ inviteCode }: { inviteCode: string }) {
             className="w-full max-w-[430px] rounded-t-3xl px-6 pt-6 pb-10 flex flex-col items-center gap-6"
             style={{ backgroundColor: '#F8F4FF' }}
             onClick={e => e.stopPropagation()}
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd}
           >
-            {/* 핸들 — 클릭 또는 아래로 드래그하면 닫힘 */}
             <div
               className="w-10 h-1 rounded-full cursor-pointer"
               style={{ backgroundColor: '#D4C0F0' }}

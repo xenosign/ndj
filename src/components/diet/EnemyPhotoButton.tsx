@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { notifyUser } from '@/lib/notify';
 
@@ -16,20 +16,10 @@ export default function EnemyPhotoButton({ hasPhoto, signedUrl, challengeId, cha
   const today = new Date().toISOString().split('T')[0];
   const storageKey = `photo-requested:${challengeId}:${today}`;
   const [requested, setRequested] = useState(false);
-  const touchStartY = useRef<number | null>(null);
 
   useEffect(() => {
     setRequested(localStorage.getItem(storageKey) === '1');
   }, [storageKey]);
-
-  function onTouchStart(e: React.TouchEvent) {
-    touchStartY.current = e.touches[0].clientY;
-  }
-  function onTouchEnd(e: React.TouchEvent) {
-    if (touchStartY.current === null) return;
-    if (e.changedTouches[0].clientY - touchStartY.current > 60) setViewOpen(false);
-    touchStartY.current = null;
-  }
 
   async function handleRequest() {
     localStorage.setItem(storageKey, '1');
@@ -82,8 +72,6 @@ export default function EnemyPhotoButton({ hasPhoto, signedUrl, challengeId, cha
             className="w-full max-w-[430px] rounded-t-3xl flex flex-col"
             style={{ backgroundColor: '#F8F4FF', maxHeight: '85dvh' }}
             onClick={e => e.stopPropagation()}
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd}
           >
             <div className="px-6 pt-5 pb-3 shrink-0">
               <div

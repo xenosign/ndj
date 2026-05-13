@@ -135,18 +135,6 @@ export default function WeightTrendCard({
 }: Props) {
   const router = useRouter();
   const photoFileInputRef = useRef<HTMLInputElement>(null);
-  const touchStartY = useRef<number | null>(null);
-
-  function onTouchStart(e: React.TouchEvent) {
-    touchStartY.current = e.touches[0].clientY;
-  }
-  function onTouchEnd(close: () => void) {
-    return (e: React.TouchEvent) => {
-      if (touchStartY.current === null) return;
-      if (e.changedTouches[0].clientY - touchStartY.current > 60) close();
-      touchStartY.current = null;
-    };
-  }
 
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadWeight, setUploadWeight] = useState(
@@ -385,8 +373,7 @@ export default function WeightTrendCard({
             className="w-full max-w-[430px] rounded-t-3xl px-6 pt-5 pb-10 flex flex-col gap-5"
             style={{ backgroundColor: '#F8F4FF' }}
             onClick={(e) => e.stopPropagation()}
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd(() => setUploadOpen(false))}
+
           >
             <div
               onClick={() => setUploadOpen(false)}
@@ -499,8 +486,7 @@ export default function WeightTrendCard({
             className="w-full max-w-[430px] rounded-t-3xl flex flex-col"
             style={{ backgroundColor: '#F8F4FF', maxHeight: '85dvh' }}
             onClick={(e) => e.stopPropagation()}
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd(() => setPhotoViewOpen(false))}
+
           >
             <div className="px-6 pt-5 pb-3 shrink-0">
               <div

@@ -34,18 +34,6 @@ export default function MissionCard({
 }: Props) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const touchStartY = useRef<number | null>(null);
-
-  function onTouchStart(e: React.TouchEvent) {
-    touchStartY.current = e.touches[0].clientY;
-  }
-  function onTouchEnd(close: () => void) {
-    return (e: React.TouchEvent) => {
-      if (touchStartY.current === null) return;
-      if (e.changedTouches[0].clientY - touchStartY.current > 60) close();
-      touchStartY.current = null;
-    };
-  }
 
   const [photoUploadOpen, setPhotoUploadOpen] = useState(false);
   const [photoViewOpen, setPhotoViewOpen] = useState(false);
@@ -55,6 +43,11 @@ export default function MissionCard({
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [currentSignedUrl, setCurrentSignedUrl] = useState<string | null>(todayPhotoSignedUrl);
   const [hasPhoto, setHasPhoto] = useState(!!todayMission?.photo_url);
+
+  const [todayPostOpen, setTodayPostOpen] = useState(false);
+  const [todayMissionContent, setTodayMissionContent] = useState('');
+  const [savingToday, setSavingToday] = useState(false);
+  const [saveTodayError, setSaveTodayError] = useState<string | null>(null);
 
   const [tomorrowPostOpen, setTomorrowPostOpen] = useState(false);
   const [missionContent, setMissionContent] = useState(tomorrowMission?.content ?? '');
@@ -102,6 +95,24 @@ export default function MissionCard({
       .from('diet-photos')
       .createSignedUrl(todayMission.photo_url, 3600);
     if (data?.signedUrl) { setCurrentSignedUrl(data.signedUrl); setPhotoViewOpen(true); }
+  }
+
+  async function handleSaveTodayMission() {
+    if (!todayMissionContent.trim()) { setSaveTodayError('미션 내용을 입력해주세요.'); return; }
+    setSavingToday(true);
+    setSaveTodayError(null);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('diet_missions')
+        .insert({ challenge_id: challengeId, mission_date: today, content: todayMissionContent.trim() });
+      if (error) throw error;
+      setTodayPostOpen(false);
+      router.refresh();
+    } catch (err: unknown) {
+      setSaveTodayError(err instanceof Error ? err.message : '오류가 발생했습니다.');
+      setSavingToday(false);
+    }
   }
 
   async function handleSaveTomorrowMission() {
@@ -158,9 +169,16 @@ export default function MissionCard({
             </button>
           </div>
         ) : (
-          <p className="text-sm text-center py-2" style={{ color: '#A67FD4' }}>
-            오늘 미션이 없어요
-          </p>
+          <div className="flex flex-col items-center gap-3 py-2">
+            <p className="text-sm text-center" style={{ color: '#A67FD4' }}>오늘 미션이 없어요</p>
+            <button
+              onClick={() => { setTodayMissionContent(''); setSaveTodayError(null); setTodayPostOpen(true); }}
+              className="w-full h-11 rounded-xl text-sm font-semibold transition-opacity active:opacity-70"
+              style={{ backgroundColor: '#4A2B8A', color: '#F8F4FF' }}
+            >
+              ✏️ 오늘 미션 등록
+            </button>
+          </div>
         )}
 
         {tomorrowMission && (
@@ -192,8 +210,7 @@ export default function MissionCard({
             className="w-full max-w-[430px] rounded-t-3xl px-6 pt-5 pb-10 flex flex-col gap-5"
             style={{ backgroundColor: '#F8F4FF' }}
             onClick={(e) => e.stopPropagation()}
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd(() => setPhotoUploadOpen(false))}
+
           >
             <div onClick={() => setPhotoUploadOpen(false)} className="w-10 h-1 rounded-full mx-auto cursor-pointer" style={{ backgroundColor: '#D4C0F0' }} />
             <h2 className="text-base font-bold" style={{ color: '#1A0A3D' }}>미션 인증 사진</h2>
@@ -255,8 +272,7 @@ export default function MissionCard({
             className="w-full max-w-[430px] rounded-t-3xl flex flex-col"
             style={{ backgroundColor: '#F8F4FF', maxHeight: '85dvh' }}
             onClick={(e) => e.stopPropagation()}
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd(() => setPhotoViewOpen(false))}
+
           >
             <div className="px-6 pt-5 pb-3 shrink-0">
               <div onClick={() => setPhotoViewOpen(false)} className="w-10 h-1 rounded-full mx-auto mb-4 cursor-pointer" style={{ backgroundColor: '#D4C0F0' }} />
@@ -280,6 +296,47 @@ export default function MissionCard({
         </div>
       )}
 
+      {/* 오늘 미션 등록 모달 */}
+      {todayPostOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setTodayPostOpen(false)}
+        >
+          <div
+            className="w-full max-w-[430px] rounded-t-3xl px-6 pt-5 pb-10 flex flex-col gap-5"
+            style={{ backgroundColor: '#F8F4FF' }}
+            onClick={(e) => e.stopPropagation()}
+
+          >
+            <div onClick={() => setTodayPostOpen(false)} className="w-10 h-1 rounded-full mx-auto cursor-pointer" style={{ backgroundColor: '#D4C0F0' }} />
+            <h2 className="text-base font-bold" style={{ color: '#1A0A3D' }}>오늘 미션 등록</h2>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-semibold" style={{ color: '#A67FD4' }}>미션 내용</label>
+              <textarea
+                value={todayMissionContent}
+                onChange={(e) => setTodayMissionContent(e.target.value)}
+                placeholder="오늘 수행할 미션을 입력하세요..."
+                rows={4}
+                className="w-full px-4 py-3 rounded-xl text-sm outline-none border resize-none"
+                style={{ backgroundColor: '#F8F4FF', color: '#1A0A3D', borderColor: '#D4C0F0' }}
+              />
+            </div>
+            {saveTodayError && (
+              <p className="text-xs font-medium" style={{ color: '#F44' }}>{saveTodayError}</p>
+            )}
+            <button
+              onClick={handleSaveTodayMission}
+              disabled={savingToday}
+              className="w-full h-12 rounded-xl font-bold text-sm transition-opacity disabled:opacity-50"
+              style={{ backgroundColor: '#4A2B8A', color: '#F8F4FF' }}
+            >
+              {savingToday ? '저장 중...' : '미션 저장'}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 내일 미션 등록/수정 모달 */}
       {tomorrowPostOpen && (
         <div
@@ -291,8 +348,7 @@ export default function MissionCard({
             className="w-full max-w-[430px] rounded-t-3xl px-6 pt-5 pb-10 flex flex-col gap-5"
             style={{ backgroundColor: '#F8F4FF' }}
             onClick={(e) => e.stopPropagation()}
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd(() => setTomorrowPostOpen(false))}
+
           >
             <div onClick={() => setTomorrowPostOpen(false)} className="w-10 h-1 rounded-full mx-auto cursor-pointer" style={{ backgroundColor: '#D4C0F0' }} />
             <h2 className="text-base font-bold" style={{ color: '#1A0A3D' }}>

@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { notifyUser } from '@/lib/notify';
@@ -31,8 +31,6 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
   const [open, setOpen] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(false);
-  const dragStartY = useRef<number | null>(null);
-  const sheetRef = useRef<HTMLDivElement>(null);
   const [content, setContent] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -51,28 +49,40 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
 
     if (!data) { setLoading(false); return; }
 
+    const allUserIds = [...new Set(data.map(c => c.user_id as string))];
     const nonAnonIds = [...new Set(
       data.filter(c => !c.is_anonymous).map(c => c.user_id as string)
     )];
-    const { data: profiles } = nonAnonIds.length > 0
-      ? await supabase.from('profiles').select('id, nickname, avatar_url').in('id', nonAnonIds)
-      : { data: [] };
+    const [{ data: profiles }, { data: participantRows }] = await Promise.all([
+      nonAnonIds.length > 0
+        ? supabase.from('profiles').select('id, nickname, avatar_url').in('id', nonAnonIds)
+        : { data: [] },
+      allUserIds.length > 0
+        ? supabase.from('diet_participants').select('user_id, character').eq('challenge_id', challengeId).in('user_id', allUserIds)
+        : { data: [] },
+    ]);
 
     const profileMap = Object.fromEntries(
       (profiles ?? []).map(p => [p.id as string, p])
     );
+    const characterMap = Object.fromEntries(
+      (participantRows ?? []).map(p => [p.user_id as string, p.character as string | null])
+    );
 
     setComments(data.map(c => {
+      const uid = c.user_id as string;
       const anon = c.is_anonymous as boolean;
-      const profile = anon ? null : profileMap[c.user_id as string];
+      const character = characterMap[uid];
+      const isAnonymousParticipant = character && character !== 'kakao' && character !== 'nickname';
+      const profile = (!anon && !isAnonymousParticipant) ? profileMap[uid] : null;
       return {
         id: c.id as string,
-        user_id: c.user_id as string,
+        user_id: uid,
         content: c.content as string,
         created_at: c.created_at as string,
-        is_anonymous: anon,
-        nickname: anon ? null : ((profile?.nickname as string | null) ?? null),
-        avatarUrl: anon ? null : ((profile?.avatar_url as string | null) ?? null),
+        is_anonymous: anon && !isAnonymousParticipant,
+        nickname: isAnonymousParticipant ? character : (anon ? null : ((profile?.nickname as string | null) ?? null)),
+        avatarUrl: (anon || isAnonymousParticipant) ? null : ((profile?.avatar_url as string | null) ?? null),
       };
     }));
     setLoading(false);
@@ -120,24 +130,6 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
     loadComments();
   }
 
-  function onDragStart(e: React.TouchEvent) {
-    dragStartY.current = e.touches[0].clientY;
-  }
-
-  function onDragMove(e: React.TouchEvent) {
-    if (dragStartY.current === null || !sheetRef.current) return;
-    const dy = e.touches[0].clientY - dragStartY.current;
-    if (dy > 0) sheetRef.current.style.transform = `translateY(${dy}px)`;
-  }
-
-  function onDragEnd(e: React.TouchEvent) {
-    if (dragStartY.current === null || !sheetRef.current) return;
-    const dy = e.changedTouches[0].clientY - dragStartY.current;
-    sheetRef.current.style.transform = '';
-    if (dy > 80) setOpen(false);
-    dragStartY.current = null;
-  }
-
   return (
     <>
       <button
@@ -155,17 +147,13 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
           onClick={() => setOpen(false)}
         >
           <div
-            ref={sheetRef}
             className="w-full max-w-[430px] rounded-t-3xl flex flex-col"
-            style={{ backgroundColor: '#F8F4FF', maxHeight: '80dvh', transition: 'transform 0.15s ease' }}
+            style={{ backgroundColor: '#F8F4FF', maxHeight: '80dvh' }}
             onClick={e => e.stopPropagation()}
           >
-            {/* 핸들 + 제목 — 드래그 영역 */}
+            {/* 핸들 + 제목 */}
             <div
-              className="px-6 pt-5 pb-3 shrink-0 cursor-grab active:cursor-grabbing"
-              onTouchStart={onDragStart}
-              onTouchMove={onDragMove}
-              onTouchEnd={onDragEnd}
+              className="px-6 pt-5 pb-3 shrink-0"
             >
               <div
                 onClick={() => setOpen(false)}
@@ -197,20 +185,20 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
                       {/* 아바타 */}
                       <div
                         className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 mt-0.5"
-                        style={{ backgroundColor: c.is_anonymous ? '#D4C0F0' : '#EDE0FF' }}
+                        style={{ backgroundColor: c.is_anonymous && !c.nickname ? '#D4C0F0' : '#EDE0FF' }}
                       >
                         {!c.is_anonymous && c.avatarUrl?.startsWith('http') ? (
                           <Image src={c.avatarUrl} alt={c.nickname ?? ''} width={32} height={32} className="object-cover w-full h-full" />
                         ) : (
                           <span style={{ fontSize: 12, fontWeight: 700, color: '#7B4DBE' }}>
-                            {c.is_anonymous ? '?' : initial}
+                            {c.is_anonymous && !c.nickname ? '?' : initial}
                           </span>
                         )}
                       </div>
                       <div className="flex flex-col gap-1 flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-xs font-semibold" style={{ color: isOwner ? '#7B4DBE' : '#1A0A3D' }}>
-                            {c.is_anonymous ? '익명' : (c.nickname ?? '익명')}{isOwner && ' 👑'}
+                            {c.is_anonymous && !c.nickname ? '익명' : (c.nickname ?? '익명')}{isOwner && ' 👑'}
                           </span>
                           <span className="text-xs shrink-0" style={{ color: '#C4A0E8' }}>
                             {formatDate(c.created_at)}

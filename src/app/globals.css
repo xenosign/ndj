@@ -18,11 +18,12 @@ body {
   background: #1A0A3D;
   color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
+  overscroll-behavior: none;
 }
 
 #mobile-frame {
   max-width: 430px;
-  height: 100dvh;
+  height: 100svh;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -30,6 +31,7 @@ body {
   position: relative;
   overflow: hidden;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.15);
+  overscroll-behavior: none;
 }
 
 #mobile-frame > main {
@@ -38,6 +40,7 @@ body {
 
 .overflow-y-auto {
   scrollbar-width: none;
+  overscroll-behavior: contain;
 }
 
 .overflow-y-auto::-webkit-scrollbar {
