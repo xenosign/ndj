@@ -30,32 +30,38 @@ export default function NotificationBell() {
 
   useEffect(() => {
     const supabase = createClient();
+    let cancelled = false;
 
-    async function fetchUnread() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (cancelled || !user) return;
 
-      const { count } = await supabase
+      supabase
         .from("notifications")
         .select("id", { count: "exact", head: true })
         .eq("user_id", user.id)
-        .eq("is_read", false);
+        .eq("is_read", false)
+        .then(({ count }) => { if (!cancelled) setUnreadCount(count ?? 0); });
 
-      setUnreadCount(count ?? 0);
-
-      channelRef.current = supabase
-        .channel("notification-bell")
+      const ch = supabase
+        .channel(`notification-bell-${user.id}-${Date.now()}`)
         .on("postgres_changes", {
           event: "INSERT",
           schema: "public",
           table: "notifications",
           filter: `user_id=eq.${user.id}`,
-        }, () => setUnreadCount((v) => v + 1))
+        }, () => { if (!cancelled) setUnreadCount((v) => v + 1); })
         .subscribe();
-    }
 
-    fetchUnread();
-    return () => { channelRef.current?.unsubscribe(); };
+      channelRef.current = ch;
+    });
+
+    return () => {
+      cancelled = true;
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
+    };
   }, []);
 
   async function handleOpen() {
