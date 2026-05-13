@@ -10,10 +10,18 @@ export function getFirebaseMessaging() {
 
 export async function requestFCMToken(): Promise<string | null> {
   try {
-    console.log("[FCM] 권한 요청, 현재 상태:", Notification.permission);
-    const permission = await Notification.requestPermission();
-    console.log("[FCM] 권한 결과:", permission);
-    if (permission !== "granted") return null;
+    console.log("[FCM] 권한 상태:", Notification.permission);
+
+    if (Notification.permission === "denied") {
+      console.log("[FCM] 권한 차단됨, 요청 생략");
+      return null;
+    }
+
+    if (Notification.permission === "default") {
+      const permission = await Notification.requestPermission();
+      console.log("[FCM] 권한 요청 결과:", permission);
+      if (permission !== "granted") return null;
+    }
 
     console.log("[FCM] SW 등록 시도");
     const registration = await navigator.serviceWorker.register(

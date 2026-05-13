@@ -7,6 +7,7 @@ import { initMobileLogger } from "@/lib/mobile-logger";
 
 export default function NotificationInit() {
   const tokenRef = useRef<string | null>(null);
+  const registeringRef = useRef(false);
 
   useEffect(() => {
     if (
@@ -19,31 +20,35 @@ export default function NotificationInit() {
     initMobileLogger();
 
     async function registerToken() {
+      if (registeringRef.current || tokenRef.current) return;
+      registeringRef.current = true;
       console.log("[NI] registerToken 시작");
-      const token = await requestFCMToken();
-      if (!token) { console.warn("[NI] 토큰 없음"); return; }
-      tokenRef.current = token;
+      try {
+        const token = await requestFCMToken();
+        if (!token) { console.warn("[NI] 토큰 없음"); return; }
+        tokenRef.current = token;
 
-      const res = await fetch("/api/fcm-token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
-      console.log("[NI] fcm-token 응답:", res.status);
+        const res = await fetch("/api/fcm-token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+        console.log("[NI] fcm-token 응답:", res.status);
+      } finally {
+        registeringRef.current = false;
+      }
     }
 
     const supabase = createClient();
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log("[NI] getSession:", session ? "세션있음" : "세션없음");
-      if (session) registerToken();
-    });
-
-    // 로그인/로그아웃 이벤트 감지
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN") {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("[NI] auth event:", event);
+      if (event === "INITIAL_SESSION" && session) {
+        registerToken();
+      } else if (event === "SIGNED_IN") {
         registerToken();
       } else if (event === "SIGNED_OUT") {
+        registeringRef.current = false;
         const token = tokenRef.current;
         if (token) {
           fetch("/api/fcm-token", {
