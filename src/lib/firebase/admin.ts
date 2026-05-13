@@ -30,6 +30,7 @@ export async function sendNotification({
   await messaging.send({
     token,
     notification: { title, body },
+    data: { url: url ?? "/" },
     webpush: {
       notification: {
         icon: "/icons/WEGOBE-logo-192.png",
