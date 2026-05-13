@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import NotificationBell from '@/components/notifications/NotificationBell';
 
 interface TopHeaderProps {
   title?: string;
@@ -19,7 +20,7 @@ export default function TopHeader({ showBack = true, backHref }: TopHeaderProps)
 
   return (
     <header
-      className="flex items-center gap-3 px-5 shrink-0 border-b"
+      className="relative flex items-center gap-3 px-5 shrink-0 border-b"
       style={{ backgroundColor: '#F8F4FF', borderColor: '#D4C0F0', height: 56 }}
     >
       {showBack && (
@@ -44,6 +45,7 @@ export default function TopHeader({ showBack = true, backHref }: TopHeaderProps)
           priority
         />
       </button>
+      <NotificationBell />
     </header>
   );
 }
