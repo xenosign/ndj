@@ -49,25 +49,25 @@ function WeightLineChart({ logs }: { logs: WeightLog[] }) {
   });
 
   const logMap = new Map(logs.map((l) => [l.logged_date, l.weight]));
-  const orderedWeights: number[] = [];
-  days.forEach((day) => {
-    const w = logMap.get(day);
-    if (w !== undefined) orderedWeights.push(w);
-  });
+
+  // 7일 슬롯에 고정된 x좌표 계산 (데이터 유무와 무관)
+  const slotX = (i: number) => PAD + (i * (W - PAD * 2)) / (days.length - 1);
+
+  const dataSlots = days
+    .map((day, i) => ({ i, weight: logMap.get(day) }))
+    .filter((d): d is { i: number; weight: number } => d.weight !== undefined);
 
   const points: { x: number; y: number }[] = [];
-  if (orderedWeights.length > 0) {
-    const minW = Math.min(...orderedWeights);
-    const maxW = Math.max(...orderedWeights);
+  if (dataSlots.length > 0) {
+    const weights = dataSlots.map((d) => d.weight);
+    const minW = Math.min(...weights);
+    const maxW = Math.max(...weights);
     const range = maxW - minW || 1;
-    const step =
-      orderedWeights.length > 1
-        ? (W - PAD * 2) / (orderedWeights.length - 1)
-        : 0;
-    orderedWeights.forEach((w, i) => {
-      const x = PAD + i * step;
-      const y = PAD + (1 - (w - minW) / range) * (H - PAD * 2);
-      points.push({ x, y });
+    dataSlots.forEach((d) => {
+      points.push({
+        x: slotX(d.i),
+        y: PAD + (1 - (d.weight - minW) / range) * (H - PAD * 2),
+      });
     });
   }
 
