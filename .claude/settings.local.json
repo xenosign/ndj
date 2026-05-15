@@ -23,7 +23,8 @@
       "Bash(xargs grep -l \"logged_date\\\\|mission_date\")",
       "Bash(xargs grep -l \"server action\\\\|'use server'\")",
       "Bash(Remove-Item \"D:\\\\git\\\\ndj\\\\src\\\\lib\\\\mobile-logger.ts\")",
-      "Bash(Remove-Item \"D:\\\\git\\\\ndj\\\\src\\\\app\\\\api\\\\log\\\\route.ts\")"
+      "Bash(Remove-Item \"D:\\\\git\\\\ndj\\\\src\\\\app\\\\api\\\\log\\\\route.ts\")",
+      "Bash(Remove-Item \"D:\\\\git\\\\ndj\\\\src\\\\app\\\\diet\\\\my\\\\loading.tsx\")"
     ]
   }
 }

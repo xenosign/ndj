@@ -41,20 +41,20 @@ function WeightLineChart({ logs }: { logs: WeightLog[] }) {
   const days = Array.from({ length: 7 }, (_, i) => getKSTDateString(-(6 - i)));
 
   const logMap = new Map(logs.map((l) => [l.logged_date, l.weight]));
-  const orderedWeights: number[] = [];
-  days.forEach((day) => {
-    const w = logMap.get(day);
-    if (w !== undefined) orderedWeights.push(w);
-  });
+
+  const dataSlots = days
+    .map((day, i) => ({ i, weight: logMap.get(day) }))
+    .filter((d): d is { i: number; weight: number } => d.weight !== undefined);
 
   const points: { x: number; y: number }[] = [];
-  if (orderedWeights.length > 0) {
-    const minW = Math.min(...orderedWeights);
-    const maxW = Math.max(...orderedWeights);
+  if (dataSlots.length > 0) {
+    const weights = dataSlots.map((d) => d.weight);
+    const minW = Math.min(...weights);
+    const maxW = Math.max(...weights);
     const range = maxW - minW || 1;
-    const step = orderedWeights.length > 1 ? (W - PAD * 2) / (orderedWeights.length - 1) : 0;
-    orderedWeights.forEach((w, i) => {
-      points.push({ x: PAD + i * step, y: PAD + (1 - (w - minW) / range) * (H - PAD * 2) });
+    const slotStep = (W - PAD * 2) / 6; // 하루 = 한 칸
+    dataSlots.forEach((d) => {
+      points.push({ x: PAD + d.i * slotStep, y: PAD + (1 - (d.weight - minW) / range) * (H - PAD * 2) });
     });
   }
 
@@ -74,7 +74,7 @@ function WeightLineChart({ logs }: { logs: WeightLog[] }) {
           <stop offset="100%" stopColor="rgba(255,255,255,0)" />
         </linearGradient>
       </defs>
-      {areaPath && <path d={areaPath} fill="url(#wGradEnemy)" />}
+{areaPath && <path d={areaPath} fill="url(#wGradEnemy)" />}
       {points.length > 1 && (
         <polyline points={polyline} fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       )}

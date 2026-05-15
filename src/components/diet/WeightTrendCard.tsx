@@ -50,9 +50,6 @@ function WeightLineChart({ logs }: { logs: WeightLog[] }) {
 
   const logMap = new Map(logs.map((l) => [l.logged_date, l.weight]));
 
-  // 7일 슬롯에 고정된 x좌표 계산 (데이터 유무와 무관)
-  const slotX = (i: number) => PAD + (i * (W - PAD * 2)) / (days.length - 1);
-
   const dataSlots = days
     .map((day, i) => ({ i, weight: logMap.get(day) }))
     .filter((d): d is { i: number; weight: number } => d.weight !== undefined);
@@ -63,9 +60,10 @@ function WeightLineChart({ logs }: { logs: WeightLog[] }) {
     const minW = Math.min(...weights);
     const maxW = Math.max(...weights);
     const range = maxW - minW || 1;
+    const slotStep = (W - PAD * 2) / 6; // 하루 = 한 칸
     dataSlots.forEach((d) => {
       points.push({
-        x: slotX(d.i),
+        x: PAD + d.i * slotStep,
         y: PAD + (1 - (d.weight - minW) / range) * (H - PAD * 2),
       });
     });
@@ -95,7 +93,7 @@ function WeightLineChart({ logs }: { logs: WeightLog[] }) {
           <stop offset="100%" stopColor="rgba(255,255,255,0)" />
         </linearGradient>
       </defs>
-      {areaPath && <path d={areaPath} fill="url(#wGrad)" />}
+{areaPath && <path d={areaPath} fill="url(#wGrad)" />}
       {points.length > 1 && (
         <polyline
           points={polyline}
