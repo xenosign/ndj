@@ -31,12 +31,10 @@ export async function sendNotification({
     token,
     webpush: {
       headers: { Urgency: "high" },
-      notification: {
+      data: {
         title,
         body,
-        icon: "/icons/WEGOBE-logo-192.png",
-        badge: "/icons/WEGOBE-badge-72.png",
-        data: { url: url ?? "/" },
+        url: url ?? "/",
       },
     },
   });

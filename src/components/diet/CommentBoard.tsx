@@ -21,6 +21,7 @@ interface Props {
   challengeOwnerId: string;
   buttonLabel: string;
   placeholder?: string;
+  onClose?: () => void;
 }
 
 function formatDate(iso: string) {
@@ -28,9 +29,15 @@ function formatDate(iso: string) {
   return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
-export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabel, placeholder = '적에게 한마디...' }: Props) {
+export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabel, placeholder = '적에게 한마디...', onClose }: Props) {
   const [open, setOpen] = useState(false);
-  useBackClose(open, () => setOpen(false));
+
+  function handleClose() {
+    setOpen(false);
+    onClose?.();
+  }
+
+  useBackClose(open, handleClose);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
@@ -146,7 +153,7 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
         <div
           className="fixed inset-0 z-50 flex items-end justify-center"
           style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-          onClick={() => setOpen(false)}
+          onClick={handleClose}
         >
           <div
             className="w-full max-w-[430px] rounded-t-3xl flex flex-col"
@@ -158,7 +165,7 @@ export default function CommentBoard({ challengeId, challengeOwnerId, buttonLabe
               className="px-6 pt-5 pb-3 shrink-0"
             >
               <div
-                onClick={() => setOpen(false)}
+                onClick={handleClose}
                 className="w-10 h-1 rounded-full mx-auto mb-4 cursor-pointer"
                 style={{ backgroundColor: '#D4C0F0' }}
               />

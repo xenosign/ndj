@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import CommentBoard from '@/components/diet/CommentBoard';
@@ -65,52 +65,52 @@ interface Props {
 export default function CommentCard({ challengeId, challengeOwnerId }: Props) {
   const [comments, setComments] = useState<CommentItem[]>([]);
 
-  useEffect(() => {
+  const fetchComments = useCallback(async () => {
     const supabase = createClient();
-    (async () => {
-      const { data } = await supabase
-        .from('diet_comments')
-        .select('id, content, is_anonymous, user_id')
-        .eq('challenge_id', challengeId)
-        .order('created_at', { ascending: false })
-        .limit(3);
+    const { data } = await supabase
+      .from('diet_comments')
+      .select('id, content, is_anonymous, user_id')
+      .eq('challenge_id', challengeId)
+      .order('created_at', { ascending: false })
+      .limit(3);
 
-      if (!data) return;
+    if (!data) return;
 
-      const allUserIds = [...new Set(data.map(c => c.user_id as string))];
-      const nonAnonIds = [...new Set(
-        data.filter(c => !c.is_anonymous).map(c => c.user_id as string)
-      )];
-      const [{ data: profiles }, { data: participantRows }] = await Promise.all([
-        nonAnonIds.length > 0
-          ? supabase.from('profiles').select('id, nickname, avatar_url').in('id', nonAnonIds)
-          : { data: [] },
-        allUserIds.length > 0
-          ? supabase.from('diet_participants').select('user_id, character').eq('challenge_id', challengeId).in('user_id', allUserIds)
-          : { data: [] },
-      ]);
+    const allUserIds = [...new Set(data.map(c => c.user_id as string))];
+    const nonAnonIds = [...new Set(
+      data.filter(c => !c.is_anonymous).map(c => c.user_id as string)
+    )];
+    const [{ data: profiles }, { data: participantRows }] = await Promise.all([
+      nonAnonIds.length > 0
+        ? supabase.from('profiles').select('id, nickname, avatar_url').in('id', nonAnonIds)
+        : { data: [] },
+      allUserIds.length > 0
+        ? supabase.from('diet_participants').select('user_id, character').eq('challenge_id', challengeId).in('user_id', allUserIds)
+        : { data: [] },
+    ]);
 
-      const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id as string, p]));
-      const characterMap = Object.fromEntries(
-        (participantRows ?? []).map(p => [p.user_id as string, p.character as string | null])
-      );
+    const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id as string, p]));
+    const characterMap = Object.fromEntries(
+      (participantRows ?? []).map(p => [p.user_id as string, p.character as string | null])
+    );
 
-      setComments(data.map(c => {
-        const uid = c.user_id as string;
-        const anon = c.is_anonymous as boolean;
-        const character = characterMap[uid];
-        const isAnonymousParticipant = character && character !== 'kakao' && character !== 'nickname';
-        const profile = (!anon && !isAnonymousParticipant) ? profileMap[uid] : null;
-        return {
-          id: c.id as string,
-          content: c.content as string,
-          is_anonymous: anon && !isAnonymousParticipant,
-          nickname: isAnonymousParticipant ? character : (anon ? null : ((profile?.nickname as string | null) ?? null)),
-          avatarUrl: (anon || isAnonymousParticipant) ? null : ((profile?.avatar_url as string | null) ?? null),
-        };
-      }));
-    })();
+    setComments(data.map(c => {
+      const uid = c.user_id as string;
+      const anon = c.is_anonymous as boolean;
+      const character = characterMap[uid];
+      const isAnonymousParticipant = character && character !== 'kakao' && character !== 'nickname';
+      const profile = (!anon && !isAnonymousParticipant) ? profileMap[uid] : null;
+      return {
+        id: c.id as string,
+        content: c.content as string,
+        is_anonymous: anon && !isAnonymousParticipant,
+        nickname: isAnonymousParticipant ? character : (anon ? null : ((profile?.nickname as string | null) ?? null)),
+        avatarUrl: (anon || isAnonymousParticipant) ? null : ((profile?.avatar_url as string | null) ?? null),
+      };
+    }));
   }, [challengeId]);
+
+  useEffect(() => { fetchComments(); }, [fetchComments]);
 
   return (
     <div
@@ -139,6 +139,7 @@ export default function CommentCard({ challengeId, challengeOwnerId }: Props) {
         challengeOwnerId={challengeOwnerId}
         buttonLabel="💬 적들의 댓글 보기"
         placeholder="적들에게 한마디..."
+        onClose={fetchComments}
       />
     </div>
   );
