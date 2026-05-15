@@ -117,7 +117,7 @@ export default function JoinButton({
       url: '/diet/my',
     });
 
-    router.push('/diet/enemies');
+    router.push(`/diet/enemies/${challengeId}`);
   }
 
   return (

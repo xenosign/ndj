@@ -144,16 +144,27 @@ export default function EnemyDetailPageClient({
         return;
       }
 
-      const { data: participant } = await supabase
+      let { data: participant } = await supabase
         .from('diet_participants')
         .select('id')
         .eq('challenge_id', challengeId)
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
       if (!participant) {
-        router.replace('/diet/enemies');
-        return;
+        // 참여 직후 네비게이션 시 DB 반영 지연 대비 1회 재시도
+        await new Promise(r => setTimeout(r, 600));
+        const { data: retried } = await supabase
+          .from('diet_participants')
+          .select('id')
+          .eq('challenge_id', challengeId)
+          .eq('user_id', userId)
+          .maybeSingle();
+        if (!retried) {
+          router.replace('/diet/enemies');
+          return;
+        }
+        participant = retried;
       }
 
       const [
@@ -163,7 +174,7 @@ export default function EnemyDetailPageClient({
         { data: tomorrowMission },
         { data: myVerification },
         { data: myReactionRow },
-        { data: allReactions },
+        reactionsRes,
         { data: participants },
       ] = await Promise.all([
         supabase.from('profiles').select('nickname').eq('id', challenge.user_id as string).single(),
@@ -199,16 +210,17 @@ export default function EnemyDetailPageClient({
           .eq('logged_date', today)
           .eq('user_id', userId)
           .maybeSingle(),
-        supabase
-          .from('diet_reactions')
-          .select('user_id, reaction, created_at')
-          .eq('challenge_id', challengeId)
-          .eq('logged_date', today),
+        fetch(`/api/reactions?challengeId=${challengeId}&date=${today}`)
+          .then(r => r.ok ? r.json() : { reactions: [] })
+          .catch(() => ({ reactions: [] })),
         supabase
           .from('diet_participants')
           .select('user_id, character')
           .eq('challenge_id', challengeId),
       ]);
+
+      const allReactions: { user_id: string; reaction: string; created_at: string }[] =
+        reactionsRes.reactions ?? [];
 
       const latestLog = recentLogs && recentLogs.length > 0 ? recentLogs[recentLogs.length - 1] : null;
       const currentWeight: number = (latestLog?.weight as number | null) ?? (challenge.start_weight as number);

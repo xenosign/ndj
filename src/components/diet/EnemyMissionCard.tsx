@@ -49,7 +49,10 @@ export default function EnemyMissionCard({
   onReactionChange,
 }: Props) {
   const [photoViewOpen, setPhotoViewOpen] = useState(false);
-  const [missionRequested, setMissionRequested] = useState(false);
+  const [missionRequested, setMissionRequested] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem(`mission_req_${challengeId}_${today}`) === '1';
+  });
   const [missionRequesting, setMissionRequesting] = useState(false);
   const [requested, setRequested] = useState(alreadyRequested);
   const [requesting, setRequesting] = useState(false);
@@ -79,6 +82,7 @@ export default function EnemyMissionCard({
       body: `${nickname}님이 오늘의 미션 등록을 요청했습니다!`,
       url: '/diet/my',
     });
+    localStorage.setItem(`mission_req_${challengeId}_${today}`, '1');
     setMissionRequested(true);
     setMissionRequesting(false);
   }

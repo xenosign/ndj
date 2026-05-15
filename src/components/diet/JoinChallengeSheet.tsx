@@ -140,8 +140,7 @@ export default function JoinChallengeSheet() {
       url: '/diet/my',
     });
 
-    closeSheet();
-    router.refresh();
+    router.push(`/diet/enemies/${challenge.id}`);
   }
 
   const PROFILE_OPTIONS: { value: ParticipantType; label: string }[] = [

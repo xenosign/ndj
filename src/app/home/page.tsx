@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import TopHeader from '@/components/layout/TopHeader';
+import IOSInstallBanner from '@/components/common/IOSInstallBanner';
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -79,6 +80,8 @@ export default async function HomePage() {
               참여 중인 적들의 챌린지를 확인하고 반응 및 댓글을 남기세요
             </span>
           </Link>
+
+          <IOSInstallBanner />
 
           {!hasChallenge && (
             <Link
