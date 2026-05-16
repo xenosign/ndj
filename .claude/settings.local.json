@@ -24,7 +24,10 @@
       "Bash(xargs grep -l \"server action\\\\|'use server'\")",
       "Bash(Remove-Item \"D:\\\\git\\\\ndj\\\\src\\\\lib\\\\mobile-logger.ts\")",
       "Bash(Remove-Item \"D:\\\\git\\\\ndj\\\\src\\\\app\\\\api\\\\log\\\\route.ts\")",
-      "Bash(Remove-Item \"D:\\\\git\\\\ndj\\\\src\\\\app\\\\diet\\\\my\\\\loading.tsx\")"
+      "Bash(Remove-Item \"D:\\\\git\\\\ndj\\\\src\\\\app\\\\diet\\\\my\\\\loading.tsx\")",
+      "Bash(Get-ChildItem -Path \"D:\\\\git\\\\ndj\" -Directory)",
+      "Bash(Select-Object Name)",
+      "Bash(xargs grep -l \"\\\\/diet\\\\/start\\\\|character.*select\\\\|avatar.*select\")"
     ]
   }
 }

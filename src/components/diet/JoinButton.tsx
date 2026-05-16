@@ -2,69 +2,16 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { notifyUser } from '@/lib/notify';
 
-const CHARACTERS = [
-  { id: 'char_1', name: '불꽃전사' },
-  { id: 'char_2', name: '얼음마법사' },
-  { id: 'char_3', name: '번개닌자' },
-  { id: 'char_4', name: '독수리기사' },
-  { id: 'char_5', name: '황금용사' },
-  { id: 'char_6', name: '어둠자객' },
-];
+type ParticipantType = 'kakao' | 'nickname' | 'anonymous';
 
-function CharacterCard({
-  char,
-  selected,
-  onSelect,
-}: {
-  char: (typeof CHARACTERS)[number];
-  selected: boolean;
-  onSelect: () => void;
-}) {
-  return (
-    <button
-      onClick={onSelect}
-      className="flex flex-col items-center gap-2 rounded-2xl py-3 transition-all active:opacity-75"
-      style={{
-        backgroundColor: selected ? '#4A2B8A' : '#2A1560',
-        border: `2px solid ${selected ? '#C4A0E8' : 'transparent'}`,
-      }}
-    >
-      <div
-        className="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center"
-        style={{ backgroundColor: '#1A0A3D' }}
-      >
-        <Image
-          src={`/characters/${char.id}.png`}
-          alt={char.name}
-          width={64}
-          height={64}
-          className="object-cover"
-          onError={(e) => {
-            // 이미지 없을 때 이니셜 표시
-            (e.currentTarget as HTMLImageElement).style.display = 'none';
-            const parent = e.currentTarget.parentElement;
-            if (parent && !parent.querySelector('span')) {
-              const span = document.createElement('span');
-              span.textContent = char.name[0];
-              span.style.cssText = 'font-size:24px;font-weight:800;color:#C4A0E8;';
-              parent.appendChild(span);
-            }
-          }}
-        />
-      </div>
-      <span
-        className="text-xs font-semibold"
-        style={{ color: selected ? '#C4A0E8' : '#A67FD4' }}
-      >
-        {char.name}
-      </span>
-    </button>
-  );
-}
+const PROFILE_OPTIONS: { value: ParticipantType; label: string }[] = [
+  { value: 'kakao', label: '카카오 프로필' },
+  { value: 'nickname', label: '기본 닉네임' },
+  { value: 'anonymous', label: '익명으로 참여' },
+];
 
 export default function JoinButton({
   challengeId,
@@ -74,28 +21,35 @@ export default function JoinButton({
   challengeOwnerId: string;
 }) {
   const router = useRouter();
-  const [selectedChar, setSelectedChar] = useState<string | null>(null);
+  const [participantType, setParticipantType] = useState<ParticipantType | null>(null);
+  const [anonymousName, setAnonymousName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const canJoin =
+    participantType === 'kakao' ||
+    participantType === 'nickname' ||
+    (participantType === 'anonymous' && anonymousName.trim().length > 0);
+
   async function handleJoin() {
-    if (!selectedChar) return;
+    if (!canJoin) return;
     setLoading(true);
     setError(null);
 
     const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       router.push('/login');
       return;
     }
 
+    const characterValue =
+      participantType === 'anonymous' ? anonymousName.trim() : participantType!;
+
     const { error: insertErr } = await supabase.from('diet_participants').insert({
       challenge_id: challengeId,
       user_id: user.id,
-      character: selectedChar,
+      character: characterValue,
     });
 
     if (insertErr) {
@@ -122,21 +76,39 @@ export default function JoinButton({
 
   return (
     <div className="w-full flex flex-col gap-5">
-      {/* 캐릭터 선택 */}
       <div className="flex flex-col gap-3">
         <p className="text-sm font-semibold" style={{ color: '#D4C0F0' }}>
-          캐릭터를 선택하세요
+          아바타 선택
         </p>
-        <div className="grid grid-cols-3 gap-3">
-          {CHARACTERS.map((char) => (
-            <CharacterCard
-              key={char.id}
-              char={char}
-              selected={selectedChar === char.id}
-              onSelect={() => setSelectedChar(char.id)}
-            />
+        <div className="flex gap-2">
+          {PROFILE_OPTIONS.map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => setParticipantType(opt.value)}
+              className="flex-1 h-11 rounded-xl text-xs font-semibold transition-all active:opacity-75"
+              style={{
+                backgroundColor: participantType === opt.value ? '#7B4DBE' : '#2A1560',
+                color: participantType === opt.value ? '#F8F4FF' : '#A67FD4',
+                border: `2px solid ${participantType === opt.value ? '#C4A0E8' : 'transparent'}`,
+              }}
+            >
+              {opt.label}
+            </button>
           ))}
         </div>
+
+        {participantType === 'anonymous' && (
+          <input
+            type="text"
+            maxLength={20}
+            placeholder="익명 이름을 입력하세요"
+            value={anonymousName}
+            onChange={e => setAnonymousName(e.target.value)}
+            className="w-full h-12 px-4 rounded-xl text-sm outline-none border"
+            style={{ backgroundColor: '#2A1560', color: '#EDE0FF', borderColor: '#4A2B8A' }}
+            autoFocus
+          />
+        )}
       </div>
 
       {error && (
@@ -147,7 +119,7 @@ export default function JoinButton({
 
       <button
         onClick={handleJoin}
-        disabled={!selectedChar || loading}
+        disabled={!canJoin || loading}
         className="w-full h-14 rounded-xl font-bold text-base transition-opacity active:opacity-70 disabled:opacity-40"
         style={{ backgroundColor: '#C4A0E8', color: '#1A0A3D' }}
       >

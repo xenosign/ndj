@@ -22,11 +22,11 @@ export default async function JoinCodePage({
 
   if (!challenge) {
     return (
-      <main className="flex flex-1 flex-col" style={{ backgroundColor: '#1A0A3D' }}>
+      <main className="flex flex-1 flex-col" style={{ backgroundColor: '#F8F4FF' }}>
         <TopHeader title="참여 실패" backHref="/home" />
         <div className="flex-1 flex flex-col items-center justify-center px-6 gap-4">
           <p className="text-4xl">❌</p>
-          <p className="text-base font-semibold text-center" style={{ color: '#D4C0F0' }}>
+          <p className="text-base font-semibold text-center" style={{ color: '#A67FD4' }}>
             유효하지 않은 코드입니다.
           </p>
         </div>
@@ -48,26 +48,26 @@ export default async function JoinCodePage({
   );
 
   return (
-    <main className="flex flex-1 flex-col" style={{ backgroundColor: '#1A0A3D' }}>
+    <main className="flex flex-1 flex-col" style={{ backgroundColor: '#F8F4FF' }}>
       <TopHeader title="적 다이어트 참여" backHref="/home" />
 
       <div className="flex-1 flex flex-col items-center justify-center px-6 gap-6">
         <div
           className="w-full rounded-2xl p-6 flex flex-col gap-3"
-          style={{ backgroundColor: '#2A1560' }}
+          style={{ backgroundColor: '#F8F4FF', boxShadow: '0 4px 20px rgba(123,77,190,0.28)' }}
         >
-          <p className="text-xs font-medium" style={{ color: '#D4C0F0' }}>챌린지</p>
-          <h2 className="text-xl font-bold" style={{ color: '#A67FD4' }}>
+          <p className="text-xs font-medium" style={{ color: '#A67FD4' }}>챌린지</p>
+          <h2 className="text-xl font-bold" style={{ color: '#1A0A3D' }}>
             {challenge.title}
           </h2>
           <div className="flex items-center gap-3 mt-1">
             <span
               className="text-sm font-semibold px-3 py-1 rounded-full"
-              style={{ backgroundColor: '#4A2B8A', color: '#A67FD4' }}
+              style={{ backgroundColor: '#EDE0FF', color: '#7B4DBE' }}
             >
               D - {daysLeft}일
             </span>
-            <span className="text-sm font-medium" style={{ color: '#D4C0F0' }}>
+            <span className="text-sm font-medium" style={{ color: '#A67FD4' }}>
               목표 {challenge.target_weight}kg
             </span>
           </div>
@@ -76,7 +76,7 @@ export default async function JoinCodePage({
         {existing ? (
           <div className="flex flex-col items-center gap-2">
             <p className="text-2xl">⚔️</p>
-            <p className="text-sm font-medium" style={{ color: '#D4C0F0' }}>
+            <p className="text-sm font-medium" style={{ color: '#A67FD4' }}>
               이미 이 챌린지에 참여 중입니다.
             </p>
           </div>
