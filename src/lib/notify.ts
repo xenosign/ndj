@@ -14,9 +14,5 @@ export function notifyUser({
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ targetUserId, title, body, url }),
   })
-    .then((res) => res.json().then((d) => {
-      if (!res.ok) console.error("[notify] 실패:", res.status, d);
-      else console.log("[notify] 결과:", d);
-    }))
-    .catch((e) => console.error("[notify] 네트워크 오류:", e));
+    .catch(() => {});
 }

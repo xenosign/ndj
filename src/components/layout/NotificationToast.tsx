@@ -28,8 +28,8 @@ export default function NotificationToast() {
           setToasts((prev) => prev.filter((t) => t.id !== id));
         }, 4000);
       });
-    } catch (e) {
-      console.warn("[NotificationToast] FCM 초기화 실패:", e);
+    } catch {
+      // FCM 미지원 환경에서는 토스트 비활성화
     }
 
     return () => unsubscribe?.();

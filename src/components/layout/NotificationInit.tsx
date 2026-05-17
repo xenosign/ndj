@@ -29,19 +29,17 @@ export default function NotificationInit() {
     async function registerToken() {
       if (registeringRef.current || tokenRef.current) return;
       registeringRef.current = true;
-      console.log("[NI] registerToken 시작");
       try {
         const token = await requestFCMToken();
-        if (!token) { console.warn("[NI] 토큰 없음"); return; }
+        if (!token) return;
         tokenRef.current = token;
 
         const deviceId = getDeviceId();
-        const res = await fetch("/api/fcm-token", {
+        await fetch("/api/fcm-token", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token, deviceId }),
         });
-        console.log("[NI] fcm-token 응답:", res.status);
       } finally {
         registeringRef.current = false;
       }
@@ -50,7 +48,6 @@ export default function NotificationInit() {
     const supabase = createClient();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("[NI] auth event:", event);
       if (event === "INITIAL_SESSION" && session) {
         registerToken();
       } else if (event === "SIGNED_IN") {

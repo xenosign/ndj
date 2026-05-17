@@ -7,13 +7,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { getKSTDateString } from '@/utils/date';
-
-function generateInviteCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const array = new Uint8Array(16);
-  crypto.getRandomValues(array);
-  return Array.from(array, b => chars[b % chars.length]).join('');
-}
+import { generateInviteCode } from '@/utils/constants';
 
 export default function DietStartPage() {
   const router = useRouter();

@@ -35,8 +35,6 @@ export async function POST(req: NextRequest) {
     .select("token")
     .eq("user_id", targetUserId);
 
-  console.log(`[notify] targetUserId=${targetUserId} tokenCount=${tokenRows?.length ?? 0}`);
-
   let fcmSent = 0;
   let fcmFailed = 0;
 
@@ -55,8 +53,6 @@ export async function POST(req: NextRequest) {
             code === "messaging/invalid-registration-token"
           ) {
             expiredTokens.push(token);
-          } else {
-            console.error("[notify] FCM 발송 실패:", error);
           }
         }
       })
@@ -66,6 +62,5 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  console.log(`[notify] tokens=${tokenRows?.length ?? 0} sent=${fcmSent} failed=${fcmFailed}`);
   return NextResponse.json({ ok: true, fcmSent, fcmFailed });
 }

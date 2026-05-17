@@ -2,15 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-
-const REACTION_SENTIMENT: Record<string, 'good' | 'neutral' | 'bad'> = {
-  '👍': 'good', '🔥': 'good', '💪': 'good', '❤️': 'good', '🎉': 'good',
-  '😍': 'good', '🤩': 'good', '🙌': 'good', '✨': 'good', '😎': 'good',
-  '😐': 'neutral', '🤔': 'neutral', '😶': 'neutral', '😑': 'neutral', '🙂': 'neutral',
-  '😏': 'neutral', '👀': 'neutral', '🤷': 'neutral', '😮': 'neutral', '💭': 'neutral',
-  '👎': 'bad', '😤': 'bad', '😠': 'bad', '😒': 'bad', '😞': 'bad',
-  '😔': 'bad', '💢': 'bad', '🤦': 'bad', '😩': 'bad', '😫': 'bad',
-};
+import { REACTION_SENTIMENT } from '@/utils/constants';
 
 const SENTIMENT_COLORS: Record<string, string> = {
   good: '#4A2B8A',

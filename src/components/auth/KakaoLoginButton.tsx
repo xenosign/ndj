@@ -6,8 +6,8 @@ export default function KakaoLoginButton() {
   async function handleKakaoLogin() {
     try {
       await signInWithOAuth("kakao");
-    } catch (error) {
-      console.error("카카오 로그인 실패:", error);
+    } catch {
+      // 로그인 실패 시 Supabase가 redirect로 처리
     }
   }
 

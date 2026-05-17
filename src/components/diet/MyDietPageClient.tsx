@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { getKSTDateString } from '@/utils/date';
+import { generateInviteCode, REACTION_SENTIMENT } from '@/utils/constants';
 import ScrollableArea from '@/components/layout/ScrollableArea';
 import TopHeader from '@/components/layout/TopHeader';
 import InviteModal from '@/components/diet/InviteModal';
@@ -12,22 +13,6 @@ import CommentCard from '@/components/diet/CommentCard';
 import EnemyReactionBar from '@/components/diet/EnemyReactionBar';
 import ReactionSummaryCard from '@/components/diet/ReactionSummaryCard';
 import MissionCard from '@/components/diet/MissionCard';
-
-function generateInviteCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const bytes = new Uint8Array(16);
-  crypto.getRandomValues(bytes);
-  return Array.from(bytes, b => chars[b % chars.length]).join('');
-}
-
-const REACTION_SENTIMENT: Record<string, 'good' | 'neutral' | 'bad'> = {
-  '👍': 'good', '🔥': 'good', '💪': 'good', '❤️': 'good', '🎉': 'good',
-  '😍': 'good', '🤩': 'good', '🙌': 'good', '✨': 'good', '😎': 'good',
-  '😐': 'neutral', '🤔': 'neutral', '😶': 'neutral', '😑': 'neutral', '🙂': 'neutral',
-  '😏': 'neutral', '👀': 'neutral', '🤷': 'neutral', '😮': 'neutral', '💭': 'neutral',
-  '👎': 'bad', '😤': 'bad', '😠': 'bad', '😒': 'bad', '😞': 'bad',
-  '😔': 'bad', '💢': 'bad', '🤦': 'bad', '😩': 'bad', '😫': 'bad',
-};
 
 type PageData = {
   challenge: {
