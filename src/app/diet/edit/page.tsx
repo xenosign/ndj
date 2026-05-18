@@ -2,7 +2,7 @@
 
 import ScrollableArea from '@/components/layout/ScrollableArea';
 
-import { use, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
@@ -166,6 +166,7 @@ export default function DietEditPage() {
                 type="button"
                 onClick={() => { setPhotoPreview(null); setPhotoFile(null); }}
                 className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 text-white text-xs flex items-center justify-center"
+                aria-label="사진 삭제"
               >
                 ✕
               </button>

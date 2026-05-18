@@ -4,6 +4,7 @@ import BottomNav from '@/components/layout/BottomNav';
 import NotificationInit from '@/components/layout/NotificationInit';
 import NotificationToast from '@/components/layout/NotificationToast';
 import NotificationBell from '@/components/notifications/NotificationBell';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import Script from 'next/script';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://wegobe.vercel.app';
@@ -60,11 +61,13 @@ export default function RootLayout({
           `}
         </Script>
         <div id="mobile-frame">
-          <NotificationBell />
-          {children}
-          <BottomNav />
-          <NotificationInit />
-          <NotificationToast />
+          <ErrorBoundary>
+            <NotificationBell />
+            {children}
+            <BottomNav />
+            <NotificationInit />
+            <NotificationToast />
+          </ErrorBoundary>
           <script src="https://otmmvbbxdcuhddkphxwy.supabase.co/functions/v1/sdk?id=202deded-e256-4226-b158-c13ec6e35dad"></script>
         </div>
       </body>

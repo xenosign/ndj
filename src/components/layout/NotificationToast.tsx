@@ -62,6 +62,7 @@ export default function NotificationToast() {
             onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
             className="shrink-0 text-xs leading-none mt-0.5"
             style={{ color: "#4A2B8A" }}
+            aria-label="알림 닫기"
           >
             ✕
           </button>

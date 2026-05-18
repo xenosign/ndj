@@ -446,6 +446,7 @@ export default function WeightTrendCard({
                       setUploadFile(null);
                     }}
                     className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-black/50 text-white text-xs"
+                    aria-label="사진 삭제"
                   >
                     ✕
                   </button>

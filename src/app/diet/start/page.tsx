@@ -173,6 +173,7 @@ export default function DietStartPage() {
                 type="button"
                 onClick={() => { setPhotoPreview(null); setPhotoFile(null); }}
                 className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 text-white text-xs flex items-center justify-center"
+                aria-label="사진 삭제"
               >
                 ✕
               </button>
