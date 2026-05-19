@@ -36,6 +36,10 @@ export default function MissionCard({
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // 낙관적 업데이트용 로컬 state
+  const [localTodayMission, setLocalTodayMission] = useState<Mission | null>(todayMission);
+  const [localTomorrowMission, setLocalTomorrowMission] = useState<{ id: string; content: string } | null>(tomorrowMission);
+
   const [photoUploadOpen, setPhotoUploadOpen] = useState(false);
   const [photoViewOpen, setPhotoViewOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -69,7 +73,7 @@ export default function MissionCard({
 
   async function handlePhotoUpload() {
     if (!uploadFile) { setUploadError('사진을 선택해주세요.'); return; }
-    if (!todayMission) return;
+    if (!localTodayMission) return;
     setUploading(true);
     setUploadError(null);
     try {
@@ -82,7 +86,7 @@ export default function MissionCard({
       const { error: updateErr } = await supabase
         .from('diet_missions')
         .update({ photo_url: path })
-        .eq('id', todayMission.id);
+        .eq('id', localTodayMission.id);
       if (updateErr) throw updateErr;
       setHasPhoto(true);
       setPhotoUploadOpen(false);
@@ -95,11 +99,11 @@ export default function MissionCard({
 
   async function handleViewPhoto() {
     if (currentSignedUrl) { setPhotoViewOpen(true); return; }
-    if (!todayMission?.photo_url) return;
+    if (!localTodayMission?.photo_url) return;
     const supabase = createClient();
     const { data } = await supabase.storage
       .from('diet-photos')
-      .createSignedUrl(todayMission.photo_url, 3600);
+      .createSignedUrl(localTodayMission.photo_url, 3600);
     if (data?.signedUrl) { setCurrentSignedUrl(data.signedUrl); setPhotoViewOpen(true); }
   }
 
@@ -109,10 +113,15 @@ export default function MissionCard({
     setSaveTodayError(null);
     try {
       const supabase = createClient();
-      const { error } = await supabase
+      const { data: inserted, error } = await supabase
         .from('diet_missions')
-        .insert({ challenge_id: challengeId, mission_date: today, content: todayMissionContent.trim() });
+        .insert({ challenge_id: challengeId, mission_date: today, content: todayMissionContent.trim() })
+        .select('id')
+        .single();
       if (error) throw error;
+
+      // 즉시 UI 업데이트 (낙관적)
+      setLocalTodayMission({ id: inserted.id, content: todayMissionContent.trim(), photo_url: null });
       setTodayPostOpen(false);
       router.refresh();
     } catch (err: unknown) {
@@ -127,17 +136,25 @@ export default function MissionCard({
     setSaveError(null);
     try {
       const supabase = createClient();
-      if (tomorrowMission) {
+      if (localTomorrowMission) {
         const { error } = await supabase
           .from('diet_missions')
           .update({ content: missionContent.trim() })
-          .eq('id', tomorrowMission.id);
+          .eq('id', localTomorrowMission.id);
         if (error) throw error;
+
+        // 즉시 UI 업데이트 (낙관적)
+        setLocalTomorrowMission({ id: localTomorrowMission.id, content: missionContent.trim() });
       } else {
-        const { error } = await supabase
+        const { data: inserted, error } = await supabase
           .from('diet_missions')
-          .insert({ challenge_id: challengeId, mission_date: tomorrow, content: missionContent.trim() });
+          .insert({ challenge_id: challengeId, mission_date: tomorrow, content: missionContent.trim() })
+          .select('id')
+          .single();
         if (error) throw error;
+
+        // 즉시 UI 업데이트 (낙관적)
+        setLocalTomorrowMission({ id: inserted.id, content: missionContent.trim() });
       }
       setTomorrowPostOpen(false);
       router.refresh();
@@ -153,10 +170,10 @@ export default function MissionCard({
         className="rounded-2xl px-5 py-5 flex flex-col gap-4"
         style={{ backgroundColor: '#F8F4FF', boxShadow: '0 4px 20px rgba(123,77,190,0.28)' }}
       >
-        {todayMission ? (
+        {localTodayMission ? (
           <div className="flex flex-col gap-3">
             <p className="text-sm leading-relaxed" style={{ color: '#1A0A3D' }}>
-              {todayMission.content}
+              {localTodayMission.content}
             </p>
             {verificationCount > 0 && (
               <p className="text-xs font-semibold" style={{ color: '#A67FD4' }}>
@@ -187,21 +204,21 @@ export default function MissionCard({
           </div>
         )}
 
-        {tomorrowMission && (
+        {localTomorrowMission && (
           <p className="text-xs px-1 leading-relaxed" style={{ color: '#A67FD4' }}>
-            내일: {tomorrowMission.content}
+            내일: {localTomorrowMission.content}
           </p>
         )}
         <button
           onClick={() => {
-            setMissionContent(tomorrowMission?.content ?? '');
+            setMissionContent(localTomorrowMission?.content ?? '');
             setSaveError(null);
             setTomorrowPostOpen(true);
           }}
           className="w-full h-11 rounded-xl text-sm font-semibold transition-opacity active:opacity-70"
           style={{ backgroundColor: '#EDE0FF', color: '#4A2B8A' }}
         >
-          {tomorrowMission ? '✏️ 내일 미션 수정' : '✏️ 내일 미션 등록'}
+          {localTomorrowMission ? '✏️ 내일 미션 수정' : '✏️ 내일 미션 등록'}
         </button>
       </div>
 
@@ -359,7 +376,7 @@ export default function MissionCard({
           >
             <div onClick={() => setTomorrowPostOpen(false)} className="w-10 h-1 rounded-full mx-auto cursor-pointer" style={{ backgroundColor: '#D4C0F0' }} />
             <h2 className="text-base font-bold" style={{ color: '#1A0A3D' }}>
-              내일 미션 {tomorrowMission ? '수정' : '등록'}
+              내일 미션 {localTomorrowMission ? '수정' : '등록'}
             </h2>
             <div className="flex flex-col gap-2">
               <label className="text-xs font-semibold" style={{ color: '#A67FD4' }}>미션 내용</label>

@@ -136,6 +136,12 @@ export default function WeightTrendCard({
   const router = useRouter();
   const photoFileInputRef = useRef<HTMLInputElement>(null);
 
+  // 낙관적 업데이트용 로컬 state
+  const [localCurrentWeight, setLocalCurrentWeight] = useState(currentWeight);
+  const [localRecentLogs, setLocalRecentLogs] = useState(recentLogs);
+  const [localTodayWeight, setLocalTodayWeight] = useState(todayWeight);
+  const [localProgress, setLocalProgress] = useState(progress);
+
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadWeight, setUploadWeight] = useState(
     todayWeight !== null ? String(todayWeight) : '',
@@ -154,15 +160,15 @@ export default function WeightTrendCard({
     todayPhotoPath,
   );
 
-  const prevLog = recentLogs.length > 1 ? recentLogs[recentLogs.length - 2] : null;
-  const weightChange = prevLog ? +(currentWeight - prevLog.weight).toFixed(1) : null;
+  const prevLog = localRecentLogs.length > 1 ? localRecentLogs[localRecentLogs.length - 2] : null;
+  const weightChange = prevLog ? +(localCurrentWeight - prevLog.weight).toFixed(1) : null;
   const daysAgo = prevLog
     ? Math.round((Date.now() - new Date(prevLog.logged_date).getTime()) / (1000 * 60 * 60 * 24))
     : null;
-  const diff = +(currentWeight - targetWeight).toFixed(1);
+  const diff = +(localCurrentWeight - targetWeight).toFixed(1);
 
   function handleUploadOpen() {
-    setUploadWeight(todayWeight !== null ? String(todayWeight) : '');
+    setUploadWeight(localTodayWeight !== null ? String(localTodayWeight) : '');
     setUploadFile(null);
     setUploadPreview(null);
     setUploadError(null);
@@ -181,7 +187,7 @@ export default function WeightTrendCard({
       setUploadError('사진을 선택해주세요.');
       return;
     }
-    if (todayWeight === null && !uploadWeight) {
+    if (localTodayWeight === null && !uploadWeight) {
       setUploadError('체중을 입력해주세요.');
       return;
     }
@@ -195,16 +201,32 @@ export default function WeightTrendCard({
         .from('diet-photos')
         .upload(path, uploadFile, { upsert: true });
       if (upErr) throw upErr;
+      const newWeight = localTodayWeight !== null ? localTodayWeight : parseFloat(uploadWeight);
       const { error: logErr } = await supabase.from('diet_daily_logs').upsert(
         {
           challenge_id: challengeId,
           logged_date: today,
-          weight: todayWeight !== null ? todayWeight : parseFloat(uploadWeight),
+          weight: newWeight,
           photo_url: path,
         },
         { onConflict: 'challenge_id,logged_date' },
       );
       if (logErr) throw logErr;
+
+      // 즉시 UI 업데이트 (낙관적)
+      const updatedLogs = [
+        ...localRecentLogs.filter(l => l.logged_date !== today),
+        { logged_date: today, weight: newWeight },
+      ].sort((a, b) => a.logged_date.localeCompare(b.logged_date));
+      const totalChange = startWeight - targetWeight;
+      const currentChange = startWeight - newWeight;
+      const newProgress = totalChange > 0
+        ? Math.min(100, Math.max(0, Math.round((currentChange / totalChange) * 100)))
+        : 0;
+      setLocalCurrentWeight(newWeight);
+      setLocalRecentLogs(updatedLogs);
+      setLocalTodayWeight(newWeight);
+      setLocalProgress(newProgress);
       setCurrentPhotoPath(path);
       setUploadOpen(false);
       router.refresh();
@@ -255,7 +277,7 @@ export default function WeightTrendCard({
                 className="font-extrabold leading-none"
                 style={{ color: '#F8F4FF', fontSize: '44px' }}
               >
-                {currentWeight}
+                {localCurrentWeight}
                 <span
                   className="text-lg font-semibold ml-1"
                   style={{ color: 'rgba(255,255,255,0.6)' }}
@@ -297,7 +319,7 @@ export default function WeightTrendCard({
               최근 7일
             </p>
             <div className="flex-1 min-w-0 overflow-hidden">
-              <WeightLineChart logs={recentLogs} />
+              <WeightLineChart logs={localRecentLogs} />
             </div>
             <div className="flex flex-col gap-1.5">
               <div
@@ -306,7 +328,7 @@ export default function WeightTrendCard({
               >
                 <div
                   className="h-full rounded-full transition-all"
-                  style={{ width: `${progress}%`, backgroundColor: '#F8F4FF' }}
+                  style={{ width: `${localProgress}%`, backgroundColor: '#F8F4FF' }}
                 />
               </div>
               <div className="flex justify-between items-center">
@@ -320,7 +342,7 @@ export default function WeightTrendCard({
                   className="text-xs font-bold"
                   style={{ color: '#F8F4FF' }}
                 >
-                  {progress}%
+                  {localProgress}%
                 </span>
               </div>
             </div>
@@ -387,7 +409,7 @@ export default function WeightTrendCard({
               오늘 체중 기록
             </h2>
 
-            {todayWeight === null && (
+            {localTodayWeight === null && (
               <div className="flex flex-col gap-2">
                 <label
                   className="text-xs font-semibold"
